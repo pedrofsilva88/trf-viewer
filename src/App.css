@@ -1,0 +1,117 @@
+#root {
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.dropZone {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px;
+  border-width: 2px;
+  border-radius: 2px;
+  border-color: dimgray;
+  border-style: dashed;
+  color: #bdbdbd;
+  outline: none;
+  transition: border .24s ease-in-out;
+}
+.indeterminateProgressBar {
+  background-color: #d1d5db;
+  border-radius: 9999px;
+  height: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.indeterminateProgressBarProgress {
+  background-color: #3b82f6;
+  border-radius: 9999px;
+  position: absolute;
+  bottom: 0;
+  top: 0;
+  width: 50%;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  animation-name: indeterminateProgressBar;
+}
+
+@keyframes indeterminateProgressBar {
+  from {
+    left: -50%;
+  }
+
+  to {
+    left: 100%;
+  }
+}
+.card {
+  width: 100%;
+  padding: 2em;
+}
+
+.testSummaryContainer {
+  display: flex;
+  gap: 2em;
+}
+
+.testSummaryItem {
+  flex-shrink: 0;
+  flex-basis: 33%;
+  min-width: 0;
+}
+
+.testSingleContainer {
+  display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-gap: 0.5em;
+  }
+/* these are the tiles for the single reports */
+.testSingleContainer>div {
+  aspect-ratio: 1 / 1.1;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.read-the-docs {
+  color: #888;
+}
+
+.gitSha,
+.gitSha a {
+  font-size: xx-small;
+  text-align: right;
+  color: dimgrey;
+}

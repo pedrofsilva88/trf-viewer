@@ -202,14 +202,15 @@ export const TrfTreeView = (props: AtxTCsListProps) => {
         return <div className='trfTreeView'>
             {false && [...Array(43).keys()].map(i => <TrfImage db={props.trf.db} id={1 + i} />)}
             <Container style={{ height: '500px', background: '#80808080' }}>
-                <Section minSize={100}>
+                <Section minSize={100} defaultSize={200} maxSize={400}>
+                    <div style={{ overflow: 'scroll', display: 'flex', height: '100%', width: '100%' }}>
                     <TreeView
                         aria-label="packages"
                         defaultExpanded={['1']}
                         defaultCollapseIcon={<MinusSquare />}
                         defaultExpandIcon={<PlusSquare />}
                         defaultEndIcon={<div style={{ width: 25 }} />}
-                        sx={{ height: 500, flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
+                            sx={{ alignItems: 'stretch',/* minHeight: 500, */flexGrow: 1, minWidth: 'max-content' }}
                         onNodeSelect={(_event: React.SyntheticEvent, nodeIds: string[] | string) => {
                             console.log(`TrfTreeView tree onNodeSelect(${nodeIds})`)
                             const id: number | undefined = Array.isArray(nodeIds) ?
@@ -224,6 +225,7 @@ export const TrfTreeView = (props: AtxTCsListProps) => {
                     >
                         {packageItems.map(renderTrfTreeItem)}
                     </TreeView>
+                    </div>
                 </Section>
                 <Bar size={6} style={{ background: 'currentColor', cursor: 'col-resize' }} />
                 <Section minSize={300} >

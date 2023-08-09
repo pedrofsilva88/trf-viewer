@@ -108,6 +108,8 @@ export const TrfTreeView = (props: AtxTCsListProps) => {
                 }
             }
             // package?
+            // we assume they are sorted...
+            // todo add roots properly. for now we assume there is just one!
             const src_category = row[idxSrcCategoryCol]
             const src_type = row[idxSrcTypeCol]
             const src_subtype = row[idxSrcSubtypeCol]
@@ -135,7 +137,8 @@ export const TrfTreeView = (props: AtxTCsListProps) => {
         console.log(`TrfTreeView useEffect[trf]... got ${roots.length} root items`)
         setRootReportItems(roots)
         console.log(`TrfTreeView useEffect[trf]... got ${packages.length} package items`)
-        setPackageItems(packages)
+        const rootPackages = roots.length === 1 ? [{ ...roots[0], children: packages }] : packages
+        setPackageItems(rootPackages)
 
     }, [trf, setRootReportItems, setPackageItems, setReportItemMap])
 

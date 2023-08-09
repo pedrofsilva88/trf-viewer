@@ -201,7 +201,7 @@ export const TrfTreeView = (props: AtxTCsListProps) => {
 
         return <div className='trfTreeView'>
             {false && [...Array(43).keys()].map(i => <TrfImage db={props.trf.db} id={1 + i} />)}
-            <Container style={{ height: '500px', background: '#80808080' }}>
+            <Container style={{ height: '600px', background: '#80808080' }}>
                 <Section minSize={100} defaultSize={200} maxSize={400}>
                     <div style={{ overflow: 'scroll', display: 'flex', height: '100%', width: '100%' }}>
                     <TreeView
@@ -229,6 +229,7 @@ export const TrfTreeView = (props: AtxTCsListProps) => {
                 </Section>
                 <Bar size={6} style={{ background: 'currentColor', cursor: 'col-resize' }} />
                 <Section minSize={300} >
+                    <div style={{ overflow: 'scroll', display: 'flex', height: '100%', width: '100%' }}>
                     <TreeView
                         aria-label="reportitems"
                         expanded={expanded}
@@ -238,10 +239,12 @@ export const TrfTreeView = (props: AtxTCsListProps) => {
                         defaultCollapseIcon={<MinusSquare />}
                         defaultExpandIcon={<PlusSquare />}
                         /*defaultEndIcon={<CloseSquare />}*/
-                        sx={{ height: 500, flexGrow: 1, maxWidth: 800, overflowY: 'auto' }}
+                            /* we use width 100% as we dont want a horiz scrollbar but wrapped items */
+                            sx={{ alignItems: 'stretch', width: '100%', height: 500, flexGrow: 1 }} 
                     >
                         {selectedItems.map(renderTrfItemList)}
                     </TreeView>
+                    </div>
                 </Section>
             </Container>
         </div >

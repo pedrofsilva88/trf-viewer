@@ -21,9 +21,13 @@ import AddIcon from '@mui/icons-material/Add';
 import DifferenceIcon from '@mui/icons-material/Difference';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import { DB, Sqlite3 } from '@sqlite.org/sqlite-wasm';
 //import { SelectReferenceForm } from './SelectReferenceForm';
 //import { addReferenceReport, db } from './db';
 // import { useLiveQuery } from 'dexie-react-hooks';
+
+import { Sqlite3Context, useSqliteInitEffect } from './sqlite3';
+import { TrfTreeView, TrfReport } from './TrfTreeView';
 
 const isSameFile = (a: File, b: File): boolean => {
   return a.name === b.name && a.type === b.type && a.lastModified === b.lastModified;
@@ -54,7 +58,7 @@ const useLocalStorage = <T,>(storageKey: string, initialState: T): [T, React.Dis
 function App() {
   // const [referenceIdToCompare, setReferenceIdToCompare] = useLocalStorage<number>('referenceIdToCompare', 0) // the db.Reference.id to compare with (seems like 0 is not used...)
   const [files, setFiles] = useState<File[]>([])
-  //  const [testReports, setTestReports] = useState<AtxTestReport[]>([])
+  const [testReports, setTestReports] = useState<TrfReport[]>([])
   //  const [showDetailTCs, setShowDetailTCs] = useState<AtxTestCase[]>([])
   const [loading, setLoading] = useState<boolean>(false)
 
@@ -105,44 +109,61 @@ function App() {
     }
   }, [])
 
+  const [sqlite3, setSqlite3] = useState<Sqlite3 | undefined>(undefined)
+  useSqliteInitEffect(setSqlite3)
+
   // load/open the files as sqlite databases
   useEffect(() => {
-    console.log(`App.useEffect[files]... files=${files.map((f => f.name)).join(',')}`)
-    /*
-    const parser = new XMLParser({ preserveOrder: true });
-    Promise.all(files.map(file => {
-      const text = file.text();
-      return text
-    })).then(fileTexts => fileTexts.map(fileContent => {
-      // todo optimize by not parsing again existing files.
-      try {
-        const jsonDoc = parser.parse(fileContent); // now only arrays
-        // try to parse with as AtxTestReport:
-        const reports = atxReportParse(jsonDoc)
-        return reports
-      } catch (e) {
-        console.log(`parser.parse failed with: '${e}'`)
-      }
-      setLoading(false)
-      return [];
-    }))
-      .then(reports => reports.filter(r => r !== undefined && r.length > 0))
-      .then(reports => reports.flat())
-      .then(reports => { // sort by date
-        reports.sort((a, b) => {
-          const datA = a && a.date ? a.date.valueOf() : undefined;
-          const datB = b && b.date ? b.date.valueOf() : undefined;
-          if (datA === datB) { return 0 }
-          if (datA === undefined) { return -1 }
-          if (datB === undefined) { return 1 }
-          if (datA < datB) return -1
-          return 1
+    if (sqlite3 !== undefined) {
+      console.log(`App.useEffect[files]... files=${files.map((f => f.name)).join(',')}`)
+      Promise.all(files.map(file => {
+        const arrayBuffer = file.arrayBuffer()
+        return arrayBuffer.then(a => [a, file.name] as [ArrayBuffer, string])
+      }))
+        .then(arrayBuffers => {
+          const uint8Arrays = arrayBuffers.map(([arrayBuffer, fileName]) => [new Uint8Array(arrayBuffer), fileName] as [Uint8Array, string])
+          const dbs = uint8Arrays.map(([bytes, fileName]) => {
+            const p = sqlite3.wasm.allocFromTypedArray(bytes);
+            const db = new sqlite3.oo1.DB();
+            let rc = sqlite3.capi.sqlite3_deserialize(
+              db.pointer,
+              "main",
+              p,
+              bytes.length,
+              bytes.length,
+              0
+            );
+            console.log(`sqlite3_deserialize got rc=${rc}`)
+            return [db, fileName] as [DB, string] // todo only if rc===0?
+          })
+          const reports: (TrfReport | undefined)[] = dbs.map(([db, fileName]) => {
+            console.log(`db(${fileName}).dbName=`, db.dbName())
+            const info: any[] = db.exec({ sql: "SELECT * from info limit 1; ", returnValue: "resultRows", rowMode: "object" })
+            if (info.length > 0) {
+              console.log(`db.info[0]=`, info[0])
+              return {
+                fileName: fileName,
+                db: db,
+                dbInfo: info[0]
+              }
+            } else return undefined
+          })
+          // todo remove duplicates by uuid (or uuid/execution_time?)
+          // todo sort by execution date
+          return reports.filter(r => r !== undefined) as TrfReport[]
+        }
+        )
+        .then(reports => { setLoading(false); if (reports) setTestReports(reports) })
+        .catch(e => {
+          console.error(`App.useEffect[files]... got error '${e}'`)
+          setLoading(false)
         })
-        return reports
-      })
-      .then(reports => { setLoading(false); if (reports) setTestReports(reports) })
-      */
-  }, [files/*, setTestReports*/])
+    } else {
+      if (files.length > 0) {
+        console.warn(`App.useEffect[files] got no sqlite3!  files=${files.map((f => f.name)).join(',')}`)
+      }
+    }
+  }, [sqlite3, files, setLoading, setTestReports])
 
   const Drop = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -177,6 +198,7 @@ function App() {
   }), [prefersDarkMode])
 
   return (
+    <Sqlite3Context.Provider value={sqlite3}>
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <ConfirmProvider >
@@ -218,8 +240,8 @@ function App() {
                 </Dropzone>
               </Drop>
               <IconButton aria-label='clear reports' size='large' color='inherit'
-                disabled={!(files.length > 0/* || testReports.length > 0*/)}
-                onClick={() => { setFiles([]); /*setTestReports([]); setReferenceIdToCompare(0)*/ }}>
+                  disabled={!(files.length > 0 || testReports.length > 0)}
+                  onClick={() => { setFiles([]); setTestReports([]); /*setReferenceIdToCompare(0)*/ }}>
                 <MuiTooltip title="Clear reports">
                   <DeleteForeverIcon />
                 </MuiTooltip>
@@ -258,15 +280,17 @@ function App() {
         {loading && <>
           <div id="progress" className='indeterminateProgressBar'><div className='indeterminateProgressBarProgress' /></div></>}
         <div className="card">
-          {/*testReports.length === 0 && compareView === undefined &&*/ <p>
+            {testReports.length === 0 /*&& compareView === undefined */ && <p>
             Open a trf test report file...
           </p>}
+            {testReports.length > 0 && testReports.map((report, idx) => <TrfTreeView key={`rep_${idx}`} trf={report} />)}
         </div>
         {false && files.length > 0 &&
           files.map((f: File) => (typeof f.name === 'string' ? f.name : '')).join(',') || ''}
         <div className='gitSha'>build from <a href="https://github.com/mbehr1/trf-viewer" target="_blank">github/mbehr1/trf-viewer</a> commit #{__COMMIT_HASH__}</div>
       </ConfirmProvider>
     </ThemeProvider>
+    </Sqlite3Context.Provider >
   )
 }
 

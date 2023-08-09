@@ -28,6 +28,9 @@ interface TrfTreeItem {
     name: string,
     label: string,
     result: string,
+    elementary_result: number,
+    info?: string,
+    targetValue?: string,
     children: TrfTreeItem[],
 }
 
@@ -57,7 +60,7 @@ export const TrfTreeView = (props: AtxTCsListProps) => {
         console.time(`exec query for all reportitems`)
         const columnNames: string[] = []
         const resultRows: any[] =
-            trf.db.exec({ sql: `SELECT id, parent_id, src_category, src_type, src_subtype, src_index, activity, name, label, result, image_id from reportitem join reportitem_data on reportitem_data.reportitem_id = reportitem.id left join reportitem_image on reportitem_image.key = reportitem_data.reportitem_image_key;`, returnValue: 'resultRows', rowMode: 'array', columnNames: columnNames })
+            trf.db.exec({ sql: `SELECT id, parent_id, src_category, src_type, src_subtype, src_index, activity, name, label, result, elementary_result, image_id, info, targetvalue from reportitem join reportitem_data on reportitem_data.reportitem_id = reportitem.id left join reportitem_image on reportitem_image.key = reportitem_data.reportitem_image_key;`, returnValue: 'resultRows', rowMode: 'array', columnNames: columnNames })
         // todo check whether callback or rowMode array is faster
         console.timeEnd(`exec query for all reportitems`)
         console.log(`TrfTreeView useEffect[trf]... got ${resultRows.length} resultRows`)
@@ -74,9 +77,12 @@ export const TrfTreeView = (props: AtxTCsListProps) => {
         const idxLabelCol = columnNames.findIndex((colName) => colName === 'label')
         const idxParentIdCol = columnNames.findIndex((colName) => colName === 'parent_id')
         const idxResultCol = columnNames.findIndex((colName) => colName === 'result')
+        const idxElementaryResultCol = columnNames.findIndex((colName) => colName === 'elementary_result')
         const idxSrcTypeCol = columnNames.findIndex((colName) => colName === 'src_type')
         const idxSrcSubtypeCol = columnNames.findIndex((colName) => colName === 'src_subtype')
         const idxImageIdCol = columnNames.findIndex((colName) => colName === 'image_id')
+        const idxInfoCol = columnNames.findIndex((colName) => colName === 'info')
+        const idxTargetValueCol = columnNames.findIndex((colName) => colName === 'targetvalue')
 
         const packages: TrfTreeItem[] = [] // packages/null and src_type(PACKAGE)/src_subtype(Package)
 
@@ -92,6 +98,9 @@ export const TrfTreeView = (props: AtxTCsListProps) => {
                 name: row[idxNameCol],
                 label: row[idxLabelCol] || row[idxNameCol] || row[idxActivityCol],
                 result: row[idxResultCol],
+                elementary_result: Number(row[idxElementaryResultCol]),
+                info: row[idxInfoCol],
+                targetValue: row[idxTargetValueCol],
                 children: []
             }
             tmpReportitemMap.set(tvi.id, tvi)
@@ -116,14 +125,15 @@ export const TrfTreeView = (props: AtxTCsListProps) => {
             if (src_type === 'PACKAGE') {
                 if (!src_subtype && src_category === 2) {
                     last_package = {
-                        id: tvi.id, name: tvi.name, label: tvi.label, result: tvi.result, children: []
+                        ...tvi, children: []
                     }
                     packages.push(last_package)
                 } else {
                     if (last_package !== undefined) {
                         if (last_package.children.length === 0) {
                             last_package.children.push({
-                                id: -last_package.id, name: 'Testfall', label: 'Testfall', result: last_package.result, children: []
+                                elementary_result: 0,
+                                id: -last_package.id, name: 'Test case', label: 'Test case', result: last_package.result, children: []
                             })
                         }
                         last_package.children[0].children.push(tvi) // todo or a clone without children?
@@ -172,7 +182,7 @@ export const TrfTreeView = (props: AtxTCsListProps) => {
             }}>
                 {item.icon && <Box component={TrfImage} db={item.icon.db} id={item.icon.id} color="inherit" sx={{ mr: 1 }} />}
                 <Typography variant="caption" color="inherit">
-                    {srcIndexFrag + item.label + ' id=' + item.id.toString()}
+                    {srcIndexFrag + item.label + (item.elementary_result === 1 && item.info ? ':' + item.info : '') + (item.targetValue ? ' vs. ' + item.targetValue : '') + ' id=' + item.id.toString()}
                 </Typography>
             </Box>} // {item.label + ' id=' + item.id.toString()}
         >

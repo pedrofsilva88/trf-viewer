@@ -17,7 +17,7 @@ const getPreRenderedCanvas = (imageProps: TrfImageProps) => {
 
     let canvas = idMap.get(imageProps.id)
     if (!canvas) {
-        console.log(`getPreRenderedCanvas(id=${imageProps.id}) memo[props.db,props.id]...`)
+        //console.log(`getPreRenderedCanvas(id=${imageProps.id}) memo[props.db,props.id]...`)
         const resultRows: any[] = imageProps.db.exec({ sql: `SELECT width, height, mask_color, data from image where id=${imageProps.id}`, returnValue: 'resultRows', rowMode: 'object' })
 
         if (resultRows.length > 0) {

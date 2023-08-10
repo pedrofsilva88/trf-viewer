@@ -1,58 +1,43 @@
+import { DB } from '@sqlite.org/sqlite-wasm';
+import { useEffect, useMemo, useState } from 'react';
+import SvgIcon, { SvgIconProps } from '@mui/material/SvgIcon';
+import TreeView from '@mui/lab/TreeView';
+import TreeItem, { TreeItemProps } from '@mui/lab/TreeItem';
 
-import SvgIcon, { SvgIconProps } from '@mui/material/SvgIcon'
-import TreeView from '@mui/lab/TreeView'
-import TreeItem, { TreeItemProps } from '@mui/lab/TreeItem'
+import './TrfListView.css'
+import { TrfReportItem } from './TrfWorkbenchView';
+import { TrfImage } from './TrfImage';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 
-import './TrfTreeView.css'
-import { TrfImage } from './TrfImage'
-import { ItemType, TrfReportItem, ViewType } from './TrfWorkbenchView'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import { useMemo } from 'react'
-
-
-interface TrfTreeViewProps {
-    packageItems: TrfReportItem[]
-    onSelect: (viewType: ViewType, nodeId?: number) => void
+export interface TrfReport {
+    fileName: string,
+    db: DB,
+    dbInfo: any,
 }
 
-type TrfTreeItemProps = { result: string } & TreeItemProps
-const TrfTreeItem = (props: TrfTreeItemProps) => (
+interface TrfListViewProps {
+    items: TrfReportItem[]
+    selected: TrfReportItem | undefined
+}
+
+type TrfListItemProps = { result: string } & TreeItemProps
+const TrfListItem = (props: TrfListItemProps) => (
     <TreeItem {...props} />
 )
 
-/// we encode itemType and id in the nodeId to be able to handle onSelect differently
-const idForItem = (item: TrfReportItem) => {
-    switch (item.itemType) {
-        case ItemType.Project: return 'Prj_' + item.id.toString()
-        case ItemType.Package: return 'Pkg_' + item.id.toString()
-    }
-    return item.id.toString()
-}
-
-const nodeIdToTypeAndId = (nodeId: string): [ItemType, number] => {
-    if (nodeId.startsWith('Prj_')) {
-        return [ItemType.Project, Number(nodeId.slice(4,))]
-    } else if (nodeId.startsWith('Pkg_')) {
-        return [ItemType.Package, Number(nodeId.slice(4,))]
-    } else {
-        return [ItemType.TestSteps, Number(nodeId)]
-    }
-}
 /**
  * represent a report item tree from a single database
  * @param props 
  * @returns 
  */
 
-export const TrfTreeView = (props: TrfTreeViewProps) => {
-    const { packageItems } = props
+export const TrfListView = (props: TrfListViewProps) => {
 
-    const renderTrfTreeItem = (item: TrfReportItem) => {
+    const renderTrfItemList = (item: TrfReportItem) => {
         const srcIndexFrag = item.srcIndex && item.srcIndex.length ? item.srcIndex + ' - ' : ''
-        const nodeId = idForItem(item)
 
-        return (<TrfTreeItem result={item.result} key={nodeId} nodeId={nodeId}
+        return (<TrfListItem result={item.result} key={item.id} nodeId={item.id.toString()}
             label={<Box sx={{
                 display: 'flex',
                 alignItems: 'center',
@@ -60,44 +45,49 @@ export const TrfTreeView = (props: TrfTreeViewProps) => {
             }}>
                 {item.icon && <Box component={TrfImage} db={item.icon.db} id={item.icon.id} color="inherit" sx={{ mr: 1 }} />}
                 <Typography variant="caption" color="inherit">
-                    {srcIndexFrag + (item.name || item.label) + ' id=' + nodeId}
+                    {srcIndexFrag + item.label + (item.elementary_result === 1 && item.info ? ':' + item.info : '') + (item.targetValue ? ' vs. ' + item.targetValue : '') + ' id=' + item.id.toString()}
                 </Typography>
             </Box>} // {item.label + ' id=' + item.id.toString()}
         >
-            {item.children.map(renderTrfTreeItem)}
-        </TrfTreeItem>)
+            {item.children.map(renderTrfItemList)}
+        </TrfListItem>)
     }
 
-    const defaultExpanded = useMemo(() => [idForItem(packageItems[0])], [packageItems])
+    // for the details list view:
+    const selectedItems = useMemo(() => { return props.selected ? [props.selected] : props.items }, [props.items, props.selected])
 
-    return <div className='trfTreeView'>
+    const [expanded, setExpanded] = useState<string[]>(() => selectedItems.map(item => item.id.toString()));
+    const [selected, setSelected] = useState<string[]>([]);
+
+    useEffect(() => {
+        setExpanded(selectedItems.map(item => item.id.toString()))
+        setSelected([])// selectedItems.map(item => item.id.toString())) // or only the first?
+    }, [selectedItems])
+
+    const handleToggle = (_event: React.SyntheticEvent, nodeIds: string[]) => {
+        setExpanded(nodeIds);
+    };
+
+    const handleSelect = (_event: React.SyntheticEvent, nodeIds: string[]) => {
+        setSelected(nodeIds);
+    };
+
+    return <div className='trfListView'>
         <TreeView
-            aria-label="packages"
-            defaultExpanded={defaultExpanded} 
+            aria-label="reportitems"
+            expanded={expanded}
+            selected={selected}
+            onNodeToggle={handleToggle}
+            onNodeSelect={handleSelect}
             defaultCollapseIcon={<MinusSquare />}
             defaultExpandIcon={<PlusSquare />}
-            defaultEndIcon={<div style={{ width: 25 }} />}
-            sx={{ alignItems: 'stretch',/* minHeight: 500, */flexGrow: 1, minWidth: 'max-content' }}
-            onNodeSelect={(_event: React.SyntheticEvent, nodeIds: string[] | string) => {
-                console.log(`TrfTreeView tree onNodeSelect(${nodeIds})`)
-                const nodeId: string | undefined = Array.isArray(nodeIds) ?
-                    (nodeIds.length > 0 ? nodeIds[0] : undefined)
-                    : nodeIds
-                if (nodeId !== undefined) {
-                    const [itemType, id] = nodeIdToTypeAndId(nodeId)
-                    if (itemType === ItemType.Project || itemType === ItemType.Package) {
-                        props.onSelect(ViewType.Summary, id)
-                    } else {
-                        props.onSelect(ViewType.TestSteps, id)
-                    }
-                } else {
-                    props.onSelect(ViewType.None)
-                }
-            }}
+            /*defaultEndIcon={<CloseSquare />}*/
+            /* we use width 100% as we dont want a horiz scrollbar but wrapped items */
+            sx={{ alignItems: 'stretch', width: '100%', height: 500, flexGrow: 1 }}
         >
-            {packageItems.map(renderTrfTreeItem)}
+            {selectedItems.map(renderTrfItemList)}
         </TreeView>
-    </div>
+    </div >
 }
 
 // todo replace by other icons

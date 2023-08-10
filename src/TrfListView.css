@@ -1,0 +1,25 @@
+.trfListView {
+    text-align: left;
+    padding-left: 0.5em;
+    margin-top: 6px;
+    overflow: scroll;
+    display: flex;
+    height: 100%;
+    width: 100%;
+}
+
+.trfListView .MuiTreeItem-root[result~="SUCCESS"] {
+    background-color: green;
+}
+
+.trfListView .MuiTreeItem-root[result~="FAILED"] {
+    background-color: red;
+}
+
+.trfListView .MuiTreeItem-root[result~="ERROR"] {
+    background-color: darkred;
+}
+
+.trfListView .MuiTreeItem-root[result~="NONE"] {
+    background-color: gray;
+}

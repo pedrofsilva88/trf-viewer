@@ -2,6 +2,10 @@
     text-align: left;
     padding-left: 0.5em;
     margin-top: 6px;
+    overflow: scroll;
+        display: flex;
+        height: 100%;
+        width: 100%;
 }
 
 .trfTreeView .MuiTreeItem-root[result~="SUCCESS"] {

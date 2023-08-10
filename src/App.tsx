@@ -27,7 +27,7 @@ import { DB, Sqlite3 } from '@sqlite.org/sqlite-wasm';
 // import { useLiveQuery } from 'dexie-react-hooks';
 
 import { Sqlite3Context, useSqliteInitEffect } from './sqlite3';
-import { TrfTreeView, TrfReport } from './TrfTreeView';
+import { TrfWorkbenchView, TrfReport } from './TrfWorkbenchView';
 
 const isSameFile = (a: File, b: File): boolean => {
   return a.name === b.name && a.type === b.type && a.lastModified === b.lastModified;
@@ -283,7 +283,7 @@ function App() {
             {testReports.length === 0 /*&& compareView === undefined */ && <p>
             Open a trf test report file...
           </p>}
-            {testReports.length > 0 && testReports.map((report, idx) => <TrfTreeView key={`rep_${idx}`} trf={report} />)}
+            {testReports.length > 0 && testReports.map((report, idx) => <TrfWorkbenchView key={`rep_${idx}`} trf={report} />)}
         </div>
         {false && files.length > 0 &&
           files.map((f: File) => (typeof f.name === 'string' ? f.name : '')).join(',') || ''}

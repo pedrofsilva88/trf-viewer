@@ -41,6 +41,7 @@ interface ColumnWidths {
     comment: number,
     origResult: number,
     result: number,
+    timestampRelative: number,
     duration: number,
 }
 
@@ -52,6 +53,7 @@ const ColumnWidthsDefault: ColumnWidths = {
     comment: 150,
     origResult: 75,
     result: 75,
+    timestampRelative: 80,
     duration: 80,
 }
 
@@ -186,7 +188,15 @@ export const TrfListView = (props: TrfListViewProps) => {
                     {(rowData) => { return (<TrfListResultCell result={rowData.result}>{rowData.result}</TrfListResultCell>) }}
                 </Cell>
             </Column>
-            <Column width={listColumnWidths.duration || ColumnWidthsDefault.duration} resizable
+            <Column width={listColumnWidths.timestampRelative || ColumnWidthsDefault.timestampRelative} resizable align='right'
+                onResize={(columnWidth) => { if (columnWidth) { setListColumnWidths((oldWidths) => { return { ...oldWidths, timestampRelative: columnWidth } }) } }}>
+                <HeaderCell>{`timestamp rel[s]`}</HeaderCell>
+                <Cell style={{ padding: 2 }}>
+                    {(rowData) => { return rowData.timestampRelative?.toFixed(3) ?? '' }}
+                </Cell>
+            </Column>
+
+            <Column width={listColumnWidths.duration || ColumnWidthsDefault.duration} resizable align='right'
                 onResize={(columnWidth) => { if (columnWidth) { setListColumnWidths((oldWidths) => { return { ...oldWidths, duration: columnWidth } }) } }}>
                 <HeaderCell>{`duration[s]`}</HeaderCell>
                 <Cell style={{ padding: 2 }}>

@@ -27,6 +27,7 @@ export interface TrfReportItem {
     name: string,
     label: string,
     duration?: number,
+    timestampRelative?: number,
     result: string,
     origResult?: string,
     elementary_result: number,
@@ -84,7 +85,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
         console.time(`exec query for all reportitems`)
         const columnNames: string[] = []
         const resultRows: any[] =
-            trf.db.exec({ sql: `SELECT id, parent_id, src_category, src_type, src_subtype, src_index, activity, name, label, duration, result, original_result, elementary_result, image_id, info, targetvalue, comment from reportitem join reportitem_data on reportitem_data.reportitem_id = reportitem.id left join reportitem_image on reportitem_image.key = reportitem_data.reportitem_image_key;`, returnValue: 'resultRows', rowMode: 'array', columnNames: columnNames })
+            trf.db.exec({ sql: `SELECT id, parent_id, src_category, src_type, src_subtype, src_index, activity, name, label, duration, timestamp_relative, result, original_result, elementary_result, image_id, info, targetvalue, comment from reportitem join reportitem_data on reportitem_data.reportitem_id = reportitem.id left join reportitem_image on reportitem_image.key = reportitem_data.reportitem_image_key;`, returnValue: 'resultRows', rowMode: 'array', columnNames: columnNames })
         // todo check whether callback or rowMode array is faster
         console.timeEnd(`exec query for all reportitems`)
         console.log(`TrfWorkbenchView useEffect[trf]... got ${resultRows.length} resultRows`)
@@ -100,6 +101,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
         const idxNameCol = columnNames.findIndex((colName) => colName === 'name')
         const idxLabelCol = columnNames.findIndex((colName) => colName === 'label')
         const idxDurationCol = columnNames.findIndex((colName) => colName === 'duration')
+        const idxTimestampRelativeCol = columnNames.findIndex((colName) => colName === 'timestamp_relative')
         const idxParentIdCol = columnNames.findIndex((colName) => colName === 'parent_id')
         const idxResultCol = columnNames.findIndex((colName) => colName === 'result')
         const idxOrigResultCol = columnNames.findIndex((colName) => colName === 'original_result')
@@ -126,6 +128,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
                 name: row[idxNameCol],
                 label: row[idxLabelCol] || row[idxNameCol] || row[idxActivityCol],
                 duration: row[idxDurationCol],
+                timestampRelative: row[idxTimestampRelativeCol],
                 result: row[idxResultCol],
                 origResult: row[idxOrigResultCol],
                 elementary_result: Number(row[idxElementaryResultCol]),

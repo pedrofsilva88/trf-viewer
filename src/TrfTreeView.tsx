@@ -1,24 +1,96 @@
 
 import SvgIcon, { SvgIconProps } from '@mui/material/SvgIcon'
 import TreeView from '@mui/lab/TreeView'
-import TreeItem, { TreeItemProps } from '@mui/lab/TreeItem'
+import TreeItem, { TreeItemContentProps, TreeItemProps, useTreeItem } from '@mui/lab/TreeItem'
 
 import './TrfTreeView.css'
 import { TrfImage } from './TrfImage'
 import { ItemType, TrfReportItem, ViewType } from './TrfWorkbenchView'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import { useMemo } from 'react'
-
+import { forwardRef, useMemo } from 'react'
+import clsx from 'clsx';
 
 interface TrfTreeViewProps {
     packageItems: TrfReportItem[]
     onSelect: (viewType: ViewType, nodeId?: number) => void
 }
 
+// class that does expand only on icon click
+// see https://mui.com/material-ui/react-tree-view/
+const CustomContent = forwardRef(function CustomContent(
+    props: TreeItemContentProps,
+    ref,
+) {
+    const {
+        classes,
+        className,
+        label,
+        nodeId,
+        icon: iconProp,
+        expansionIcon,
+        displayIcon,
+    } = props;
+
+    const {
+        disabled,
+        expanded,
+        selected,
+        focused,
+        handleExpansion,
+        handleSelection,
+        preventSelection,
+    } = useTreeItem(nodeId);
+
+    const icon = iconProp || expansionIcon || displayIcon;
+
+    const handleMouseDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        preventSelection(event);
+    };
+
+    const handleExpansionClick = (
+        event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    ) => {
+        handleExpansion(event);
+    };
+
+    const handleSelectionClick = (
+        event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    ) => {
+        handleSelection(event);
+    };
+
+    return (
+        // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+        <div
+            className={clsx(className, classes.root, {
+                [classes.expanded]: expanded,
+                [classes.selected]: selected,
+                [classes.focused]: focused,
+                [classes.disabled]: disabled,
+            })}
+            onMouseDown={handleMouseDown}
+            ref={ref as React.Ref<HTMLDivElement>}
+        >
+            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
+            <div onClick={handleExpansionClick} className={classes.iconContainer}>
+                {icon}
+            </div>
+            <Typography
+                onClick={handleSelectionClick}
+                component="div"
+                className={classes.label}
+            >
+                {label}
+            </Typography>
+        </div>
+    );
+});
+
+
 type TrfTreeItemProps = { result: string } & TreeItemProps
 const TrfTreeItem = (props: TrfTreeItemProps) => (
-    <TreeItem {...props} />
+    <TreeItem ContentComponent={CustomContent} {...props} />
 )
 
 /// we encode itemType and id in the nodeId to be able to handle onSelect differently

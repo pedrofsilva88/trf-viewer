@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { DB } from '@sqlite.org/sqlite-wasm';
 import { TrfImage, TrfImageProps } from './TrfImage';
 import { Container, Section, Bar } from '@column-resizer/react';
 import { TrfTreeView } from './TrfTreeView';
 import { TrfListView } from './TrfListView';
+import { useLocalStorage } from 'usehooks-ts';
 
 export interface TrfReport {
     fileName: string,
@@ -54,8 +55,30 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
     const [treeSelectedNodeId, setTreeSelectedNodeId] = useState<number | undefined>(undefined)
     const [listViewType, setListViewType] = useState<ViewType>(ViewType.None)
 
+    const [lsSection1Width, _setLSSection1Width] = useLocalStorage<number>("bench.Section1Width", 200)
+    // need to debounce it so we store it in a ref (to avoid rerender)
+    // and have a timer that checks and stores in localStorage
+    const section1Width = useRef<number>(lsSection1Width)
+
+    /* seems like localStorage.setItem is fast enough...
     useEffect(() => {
-        console.log(`TrfTreeView useEffect[trf]...`)
+        const timerId = setInterval(() => {
+            //console.log(`TrfWorkbenchView timer checking section1Width=${section1Width.current}`)
+            const persistedSection1Width = JSON.parse(localStorage.getItem("bench.Section1Width"))
+            if (section1Width.current !== persistedSection1Width) {
+                console.log(`TrfWorkbenchView storing new section1Width=${section1Width.current}`)
+                localStorage.setItem("bench.Section1Width", JSON.stringify(section1Width.current))
+            }
+        }, 5000)
+
+        return () => {
+            clearInterval(timerId)
+            console.log(`TrfWorkbenchView useEffect[section1Width] unmount`)
+        }
+    }, [section1Width])*/
+
+    useEffect(() => {
+        console.log(`TrfWorkbenchView useEffect[trf]...`)
 
         // load all report items:
         console.time(`exec query for all reportitems`)
@@ -64,9 +87,9 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
             trf.db.exec({ sql: `SELECT id, parent_id, src_category, src_type, src_subtype, src_index, activity, name, label, duration, result, original_result, elementary_result, image_id, info, targetvalue, comment from reportitem join reportitem_data on reportitem_data.reportitem_id = reportitem.id left join reportitem_image on reportitem_image.key = reportitem_data.reportitem_image_key;`, returnValue: 'resultRows', rowMode: 'array', columnNames: columnNames })
         // todo check whether callback or rowMode array is faster
         console.timeEnd(`exec query for all reportitems`)
-        console.log(`TrfTreeView useEffect[trf]... got ${resultRows.length} resultRows`)
-        console.log(`TrfTreeView useEffect[trf]... got columnNames: ${columnNames}`)
-        console.log(`TrfTreeView useEffect[trf]... got 1st row ${resultRows[0]}`)
+        console.log(`TrfWorkbenchView useEffect[trf]... got ${resultRows.length} resultRows`)
+        console.log(`TrfWorkbenchView useEffect[trf]... got columnNames: ${columnNames}`)
+        console.log(`TrfWorkbenchView useEffect[trf]... got 1st row ${resultRows[0]}`)
 
         const tmpReportitemMap = new Map<number, TrfReportItem>()
         const roots: TrfReportItem[] = [] // all without parent_id
@@ -122,7 +145,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
                 if (parentItem) {
                     parentItem.children.push(tvi)
                 } else {
-                    console.warn(`TrfTreeView useEffect[trf]... parent_id ${parentId} unknown (yet?)`)
+                    console.warn(`TrfWorkbenchView useEffect[trf]... parent_id ${parentId} unknown (yet?)`)
                 }
             }
             // package?
@@ -148,15 +171,15 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
                         }
                         last_package.children[0].children.push(tvi) // todo or a clone without children?
                     } else {
-                        console.warn(`TrfTreeView useEffect[trf]... !last_package for ${tvi.id} ${src_type} ${src_subtype}`)
+                        console.warn(`TrfWorkbenchView useEffect[trf]... !last_package for ${tvi.id} ${src_type} ${src_subtype}`)
                     }
                 }
             }
         }
         setReportItemMap(tmpReportitemMap)
-        console.log(`TrfTreeView useEffect[trf]... got ${roots.length} root items`)
+        console.log(`TrfWorkbenchView useEffect[trf]... got ${roots.length} root items`)
         setRootReportItems(roots)
-        console.log(`TrfTreeView useEffect[trf]... got ${packages.length} package items`)
+        console.log(`TrfWorkbenchView useEffect[trf]... got ${packages.length} package items`)
         const rootPackages = roots.length === 1 ? [{ ...roots[0], children: packages }] : packages
         setPackageItems(rootPackages)
 
@@ -168,7 +191,10 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
         return <div className='trfWorkbenchView'>
             {false && [...Array(43).keys()].map(i => <TrfImage db={props.trf.db} id={1 + i} />)}
             <Container style={{ height: '600px', background: '#80808080' }}>
-                <Section minSize={100} defaultSize={200} maxSize={400}>
+                <Section minSize={100} defaultSize={section1Width.current} maxSize={400} onSizeChanged={(curSize) => {
+                    section1Width.current = curSize // need to avoid re-render here so useRef...
+                    localStorage.setItem("bench.Section1Width", JSON.stringify(section1Width.current))
+                }}>
                     <TrfTreeView packageItems={packageItems}
                         onSelect={(viewType, nodeId) => {
                             setListViewType(viewType)

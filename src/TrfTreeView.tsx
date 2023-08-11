@@ -60,7 +60,7 @@ export const TrfTreeView = (props: TrfTreeViewProps) => {
             }}>
                 {item.icon && <Box component={TrfImage} db={item.icon.db} id={item.icon.id} color="inherit" sx={{ mr: 1 }} />}
                 <Typography variant="caption" color="inherit">
-                    {srcIndexFrag + (item.name || item.label) + ' id=' + nodeId}
+                    {srcIndexFrag + (item.name || item.label) /* + ' id=' + nodeId*/}
                 </Typography>
             </Box>} // {item.label + ' id=' + item.id.toString()}
         >

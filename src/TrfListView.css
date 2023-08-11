@@ -1,25 +1,41 @@
+@import "rsuite/dist/rsuite.css";
+
+.rs-table-cell-expand-wrapper {
+    margin-right: 2px;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.rs-table-cell-content {
+    padding: 3px 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+}
+
+/* @font-size-base: 10px;*/
 .trfListView {
     text-align: left;
     padding-left: 0.5em;
     margin-top: 6px;
-    overflow: scroll;
-    display: flex;
     height: 100%;
     width: 100%;
+    font-size: 0.75rem;
 }
 
-.trfListView .MuiTreeItem-root[result~="SUCCESS"] {
+.trfListView .rs-table-cell-content:has(span[result~="SUCCESS"]) {
     background-color: green;
 }
 
-.trfListView .MuiTreeItem-root[result~="FAILED"] {
+.trfListView .rs-table-cell-content:has(span[result~="FAILED"]) {
     background-color: red;
 }
 
-.trfListView .MuiTreeItem-root[result~="ERROR"] {
+.trfListView .rs-table-cell-content:has(span[result~="ERROR"]) {
     background-color: darkred;
 }
 
-.trfListView .MuiTreeItem-root[result~="NONE"] {
+.trfListView .rs-table-cell-content:has(span[result~="NONE"]) {
     background-color: gray;
 }

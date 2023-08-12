@@ -6,6 +6,7 @@ import { Container, Section, Bar } from '@column-resizer/react';
 import { TrfTreeView } from './TrfTreeView';
 import { TrfListView } from './TrfListView';
 import { useLocalStorage } from 'usehooks-ts';
+import { TrfDetailView } from './TrfDetailView';
 
 export interface TrfReport {
     fileName: string,
@@ -56,12 +57,15 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
     const [rootReportItems, setRootReportItems] = useState<TrfReportItem[]>([])
     const [packageItems, setPackageItems] = useState<TrfReportItem[]>([])
     const [treeSelectedNodeId, setTreeSelectedNodeId] = useState<number | undefined>(undefined)
+    const [listSelectedNodeId, setListSelectedNodeId] = useState<number | undefined>(undefined)
     const [listViewType, setListViewType] = useState<ViewType>(ViewType.None)
 
     const [lsSection1Width, _setLSSection1Width] = useLocalStorage<number>("bench.Section1Width", 200)
+    const [lsSection2Height, _setLSSection2Height] = useLocalStorage<number>("bench.Section2Height", 400)
     // need to debounce it so we store it in a ref (to avoid rerender)
     // and have a timer that checks and stores in localStorage
     const section1Width = useRef<number>(lsSection1Width)
+    const section2Height = useRef<number>(lsSection2Height)
 
     /* seems like localStorage.setItem is fast enough...
     useEffect(() => {
@@ -194,12 +198,13 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
 
     }, [trf, setRootReportItems, setPackageItems, setReportItemMap])
 
-    const selectedItem = treeSelectedNodeId !== undefined ? reportItemMap.get(treeSelectedNodeId) : undefined
+    const treeSelectedItem = treeSelectedNodeId !== undefined ? reportItemMap.get(treeSelectedNodeId) : undefined
+    const listSelectedItem = listSelectedNodeId !== undefined ? reportItemMap.get(listSelectedNodeId) : undefined
 
     if (rootReportItems.length) {
         return <div className='trfWorkbenchView'>
             {false && [...Array(43).keys()].map(i => <TrfImage db={props.trf.db} id={1 + i} />)}
-            <Container style={{ height: '600px', background: '#80808080' }}>
+            <Container style={{ height: '600px'/*, background: '#80808080' */ }}>
                 <Section minSize={100} defaultSize={section1Width.current} maxSize={400} onSizeChanged={(curSize) => {
                     section1Width.current = curSize // need to avoid re-render here so useRef...
                     localStorage.setItem("bench.Section1Width", JSON.stringify(section1Width.current))
@@ -212,7 +217,27 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
                 </Section>
                 <Bar size={6} style={{ background: 'currentColor', cursor: 'col-resize' }} />
                 <Section minSize={300} >
-                    {listViewType === ViewType.TestSteps && <TrfListView key={`listView_${rootReportItems.length}_${selectedItem ? selectedItem.id : 'none'}`} items={rootReportItems} selected={selectedItem} trf={props.trf} />}
+                    {listViewType === ViewType.TestSteps &&
+                        <div style={{ height: "100%", width: "100%", display: 'grid' }}>
+                            <Container vertical={true}>
+                                <Section minSize={100} defaultSize={section2Height.current} onSizeChanged={(curSize) => {
+                                    section2Height.current = curSize // need to avoid re-render here so useRef...
+                                    localStorage.setItem("bench.Section2Height", JSON.stringify(section2Height.current))
+                                }}>
+                                    <TrfListView
+                                        onSelect={(viewType, nodeId) => {
+                                            console.log(`TrfWorkbenchView list section onSelect(${viewType}, ${nodeId})`)
+                                            setListSelectedNodeId(nodeId)
+                                        }}
+                                        key={`listView_${rootReportItems.length}_${treeSelectedItem ? treeSelectedItem.id : 'none'}`} items={rootReportItems} selected={treeSelectedItem} trf={props.trf} />
+                                </Section>
+                                <Bar size={6} style={{ background: 'currentColor', cursor: 'col-resize' }} />
+                                <Section minSize={50} >
+                                    {listSelectedItem && <TrfDetailView items={rootReportItems} selected={listSelectedItem ? listSelectedItem : rootReportItems[0]} trf={props.trf} />}
+                                </Section>
+                            </Container>
+                        </div>
+                    }
                     {listViewType === ViewType.Summary && <div>Summary view todo!</div>}
                 </Section>
             </Container>

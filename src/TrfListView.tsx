@@ -4,7 +4,7 @@ import SvgIcon, { SvgIconProps } from '@mui/material/SvgIcon'
 import { Table } from 'rsuite'
 
 import './TrfListView.css'
-import { TrfReport, TrfReportItem } from './TrfWorkbenchView'
+import { TrfReport, TrfReportItem, ViewType } from './TrfWorkbenchView'
 import { TrfImage } from './TrfImage'
 import { useLocalStorage, useMediaQuery } from 'usehooks-ts'
 
@@ -12,6 +12,7 @@ interface TrfListViewProps {
     trf: TrfReport,
     items: TrfReportItem[]
     selected: TrfReportItem | undefined
+    onSelect: (viewType: ViewType, nodeId?: number) => void
 }
 
 type TrfListResultCellProps = { result: string } & DetailedHTMLProps<HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>
@@ -109,7 +110,7 @@ export const TrfListView = (props: TrfListViewProps) => {
     }, [selectedItems])
 
     const onExpandChange = (isOpen: boolean, rowData: MyRowDataType) => {
-        console.log(`TrfListView.onExpandChange(isOpen=${isOpen}, item.id=${rowData.id})`)
+        // console.log(`TrfListView.onExpandChange(isOpen=${isOpen}, item.id=${rowData.id})`)
         if (isOpen) {
             setExpanded(expanded => [...expanded, rowData.id]);
         } else {
@@ -145,6 +146,9 @@ export const TrfListView = (props: TrfListViewProps) => {
             expandedRowKeys={expanded}
             /** shouldUpdateScroll: whether to update the scroll bar after data update **/
             shouldUpdateScroll={false}
+            onRowClick={(node) => {
+                props.onSelect(ViewType.TestSteps, node.id)
+            }}
             onExpandChange={onExpandChange}
             renderTreeToggle={(_icon, rowData) => {
                 if (!rowData || (rowData.children && rowData.children.length === 0)) {

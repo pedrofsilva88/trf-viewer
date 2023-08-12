@@ -7,7 +7,7 @@
 }
 
 .rs-table-cell-content {
-    padding: 3px 10px;
+    padding: 2px 2px 0px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

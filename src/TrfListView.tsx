@@ -156,14 +156,14 @@ export const TrfListView = (props: TrfListViewProps) => {
             <Column width={listColumnWidths.step || ColumnWidthsDefault.step} resizable
                 onResize={(columnWidth) => { if (columnWidth) { setListColumnWidths((oldWidths) => { return { ...oldWidths, step: columnWidth } }) } }}>
                 <HeaderCell>#</HeaderCell>
-                <Cell style={{ padding: 2 }}>
+                <Cell>
                     {(rowData) => { return (<TrfListResultCell result={rowData.result}>{rowData.srcIndex}</TrfListResultCell>) }}
                 </Cell>
             </Column>
             <Column width={listColumnWidths.action || ColumnWidthsDefault.action} treeCol resizable verticalAlign='top'
                 onResize={(columnWidth) => { if (columnWidth) { setListColumnWidths((oldWidths) => { return { ...oldWidths, action: columnWidth } }) } }}>
                 <HeaderCell>Action/name</HeaderCell>
-                <Cell style={{ padding: 2 }}>
+                <Cell>
                     {(rowData) => {
                         return (<>
                             {rowData.icon && <div style={{ display: 'inline', position: 'relative', top: +3 }}><TrfImage db={rowData.icon.db} id={rowData.icon.id} /></div>}
@@ -175,52 +175,52 @@ export const TrfListView = (props: TrfListViewProps) => {
             <Column width={listColumnWidths.value || ColumnWidthsDefault.value} resizable colSpan={3}
                 onResize={(columnWidth) => { if (columnWidth) { setListColumnWidths((oldWidths) => { return { ...oldWidths, value: columnWidth } }) } }}>
                 <HeaderCell>value</HeaderCell>
-                <Cell style={{ padding: 2 }}>
+                <Cell>
                     {(rowData) => { return (rowData.srcType === 'PACKAGE' && rowData.elementary_result !== 1) ? '' : (rowData.info || '') }}
                 </Cell>
             </Column>
             <Column width={listColumnWidths.expectedValue || ColumnWidthsDefault.expectedValue} resizable
                 onResize={(columnWidth) => { if (columnWidth) { setListColumnWidths((oldWidths) => { return { ...oldWidths, expectedValue: columnWidth } }) } }}>
                 <HeaderCell>expected value</HeaderCell>
-                <Cell style={{ padding: 2 }} dataKey="targetValue" />
+                <Cell dataKey="targetValue" />
             </Column>
             <Column width={listColumnWidths.comment || ColumnWidthsDefault.comment} resizable
                 onResize={(columnWidth) => { if (columnWidth) { setListColumnWidths((oldWidths) => { return { ...oldWidths, comment: columnWidth } }) } }}>
                 <HeaderCell>comment</HeaderCell>
-                <Cell style={{ padding: 2 }} dataKey="comment" />
+                <Cell dataKey="comment" />
             </Column>
             <Column width={listColumnWidths.origResult || ColumnWidthsDefault.origResult} resizable
                 onResize={(columnWidth) => { if (columnWidth) { setListColumnWidths((oldWidths) => { return { ...oldWidths, origResult: columnWidth } }) } }}>
                 <HeaderCell>orig. result</HeaderCell>
-                <Cell style={{ padding: 2 }}>
+                <Cell >
                     {(rowData) => { return (<TrfListResultCell result={rowData.origResult}>{rowData.origResult}</TrfListResultCell>) }}
                 </Cell>
             </Column>
             <Column width={listColumnWidths.result || ColumnWidthsDefault.result} resizable
                 onResize={(columnWidth) => { if (columnWidth) { setListColumnWidths((oldWidths) => { return { ...oldWidths, result: columnWidth } }) } }}>
                 <HeaderCell>result</HeaderCell>
-                <Cell style={{ padding: 2 }}>
+                <Cell >
                     {(rowData) => { return (<TrfListResultCell result={rowData.result}>{rowData.result}</TrfListResultCell>) }}
                 </Cell>
             </Column>
             <Column width={listColumnWidths.timestampRelative || ColumnWidthsDefault.timestampRelative} resizable align='right'
                 onResize={(columnWidth) => { if (columnWidth) { setListColumnWidths((oldWidths) => { return { ...oldWidths, timestampRelative: columnWidth } }) } }}>
                 <HeaderCell>{`timestamp rel[s]`}</HeaderCell>
-                <Cell style={{ padding: 2 }}>
+                <Cell >
                     {(rowData) => { return rowData.timestampRelative?.toFixed(3) ?? '' }}
                 </Cell>
             </Column>
             <Column width={listColumnWidths.duration || ColumnWidthsDefault.duration} resizable align='right'
                 onResize={(columnWidth) => { if (columnWidth) { setListColumnWidths((oldWidths) => { return { ...oldWidths, duration: columnWidth } }) } }}>
                 <HeaderCell>{`duration[s]`}</HeaderCell>
-                <Cell style={{ padding: 2 }}>
+                <Cell >
                     {(rowData) => { return rowData.duration?.toFixed(3) ?? '' }}
                 </Cell>
             </Column>
             <Column width={listColumnWidths.timestampAbs || ColumnWidthsDefault.timestampAbs} resizable align='left'
                 onResize={(columnWidth) => { if (columnWidth) { setListColumnWidths((oldWidths) => { return { ...oldWidths, timestampAbs: columnWidth } }) } }}>
                 <HeaderCell>{`time`}</HeaderCell>
-                <Cell style={{ padding: 2 }}>
+                <Cell >
                     {(rowData) => { return rowData.timestamp ? (dateTimeFormat.format(new Date(1000 * rowData.timestamp))) : '' }}
                 </Cell>
             </Column>
@@ -230,7 +230,7 @@ export const TrfListView = (props: TrfListViewProps) => {
 
 // todo replace by other icons
 function MinusSquare(props: SvgIconProps) {
-    return (<div style={{ position: 'relative', top: +2 }}>
+    return (<div style={{ position: 'relative', top: +2, height: 14 }}>
         <SvgIcon fontSize="inherit" style={{ width: 14, height: 14 }} {...props}>
             {/* tslint:disable-next-line: max-line-length */}
             <path d="M22.047 22.074v0 0-20.147 0h-20.12v0 20.147 0h20.12zM22.047 24h-20.12q-.803 0-1.365-.562t-.562-1.365v-20.147q0-.776.562-1.351t1.365-.575h20.147q.776 0 1.351.575t.575 1.351v20.147q0 .803-.575 1.365t-1.378.562v0zM17.873 11.023h-11.826q-.375 0-.669.281t-.294.682v0q0 .401.294 .682t.669.281h11.826q.375 0 .669-.281t.294-.682v0q0-.401-.294-.682t-.669-.281z" />
@@ -239,7 +239,7 @@ function MinusSquare(props: SvgIconProps) {
 }
 
 function PlusSquare(props: SvgIconProps) {
-    return (<div style={{ position: 'relative', top: +2 }}>
+    return (<div style={{ position: 'relative', top: +2, height: 14 }}>
         <SvgIcon fontSize="inherit" style={{ width: 14, height: 14 }} {...props}>
             {/* tslint:disable-next-line: max-line-length */}
             <path d="M22.047 22.074v0 0-20.147 0h-20.12v0 20.147 0h20.12zM22.047 24h-20.12q-.803 0-1.365-.562t-.562-1.365v-20.147q0-.776.562-1.351t1.365-.575h20.147q.776 0 1.351.575t.575 1.351v20.147q0 .803-.575 1.365t-1.378.562v0zM17.873 12.977h-4.923v4.896q0 .401-.281.682t-.682.281v0q-.375 0-.669-.281t-.294-.682v-4.896h-4.923q-.401 0-.682-.294t-.281-.669v0q0-.401.281-.682t.682-.281h4.923v-4.896q0-.401.294-.682t.669-.281v0q.401 0 .682.281t.281.682v4.896h4.923q.401 0 .682.281t.281.682v0q0 .375-.281.669t-.682.294z" />

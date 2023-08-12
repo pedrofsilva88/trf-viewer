@@ -176,7 +176,7 @@ export const TrfListView = (props: TrfListViewProps) => {
                 onResize={(columnWidth) => { if (columnWidth) { setListColumnWidths((oldWidths) => { return { ...oldWidths, value: columnWidth } }) } }}>
                 <HeaderCell>value</HeaderCell>
                 <Cell style={{ padding: 2 }}>
-                    {(rowData) => { return (<span>{rowData.elementary_result === 1 ? rowData.info : ''}</span>) }}
+                    {(rowData) => { return rowData.elementary_result === 1 ? rowData.info : '' }}
                 </Cell>
             </Column>
             <Column width={listColumnWidths.expectedValue || ColumnWidthsDefault.expectedValue} resizable

@@ -1,21 +1,15 @@
-import { DB } from '@sqlite.org/sqlite-wasm';
 import { DetailedHTMLProps, HTMLAttributes, useEffect, useMemo, useState } from 'react';
 import SvgIcon, { SvgIconProps } from '@mui/material/SvgIcon';
 
 import { Table } from 'rsuite';
 
 import './TrfListView.css'
-import { TrfReportItem } from './TrfWorkbenchView';
+import { TrfReport, TrfReportItem } from './TrfWorkbenchView';
 import { TrfImage } from './TrfImage';
 import { useLocalStorage, useMediaQuery } from 'usehooks-ts';;
 
-export interface TrfReport {
-    fileName: string,
-    db: DB,
-    dbInfo: any,
-}
-
 interface TrfListViewProps {
+    trf: TrfReport,
     items: TrfReportItem[]
     selected: TrfReportItem | undefined
 }
@@ -43,6 +37,7 @@ interface ColumnWidths {
     result: number,
     timestampRelative: number,
     duration: number,
+    timestampAbs: number,
 }
 
 const ColumnWidthsDefault: ColumnWidths = {
@@ -55,6 +50,17 @@ const ColumnWidthsDefault: ColumnWidths = {
     result: 75,
     timestampRelative: 80,
     duration: 80,
+    timestampAbs: 150,
+}
+
+const dateTimeOptions: Intl.DateTimeFormatOptions = {
+    year: '2-digit',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    fractionalSecondDigits: 3,
 }
 
 export const TrfListView = (props: TrfListViewProps) => {
@@ -78,6 +84,15 @@ export const TrfListView = (props: TrfListViewProps) => {
             {item.children.map(renderTrfItemList)}
         </TrfListItem>)
     }*/
+
+    // const dateTimeFormat = new Intl.DateTimeFormat("de-DE", dateTimeOptions)
+    const dateTimeFormat = useMemo(() => {
+        const timezone = (props.trf.dbInfo.timezone || 7200) // / 60 // 7200 = +2h / 60 = 120mins
+        console.log(`TrfListView useMemo[dbInfo] timezone(sec diff)=${timezone}`)
+        // we could show another column in the time of that timezone by checking the
+        // local offset at test start time and then modifying by the delta
+        return new Intl.DateTimeFormat(undefined, { ...dateTimeOptions })
+    }, [props.trf.dbInfo])
 
     const [listColumnWidths, setListColumnWidths] = useLocalStorage<ColumnWidths>("listColumnWidths", ColumnWidthsDefault)
     useEffect(() => setListColumnWidths(ColumnWidthsDefault), [])
@@ -195,7 +210,6 @@ export const TrfListView = (props: TrfListViewProps) => {
                     {(rowData) => { return rowData.timestampRelative?.toFixed(3) ?? '' }}
                 </Cell>
             </Column>
-
             <Column width={listColumnWidths.duration || ColumnWidthsDefault.duration} resizable align='right'
                 onResize={(columnWidth) => { if (columnWidth) { setListColumnWidths((oldWidths) => { return { ...oldWidths, duration: columnWidth } }) } }}>
                 <HeaderCell>{`duration[s]`}</HeaderCell>
@@ -203,7 +217,13 @@ export const TrfListView = (props: TrfListViewProps) => {
                     {(rowData) => { return rowData.duration?.toFixed(3) ?? '' }}
                 </Cell>
             </Column>
-
+            <Column width={listColumnWidths.timestampAbs || ColumnWidthsDefault.timestampAbs} resizable align='left'
+                onResize={(columnWidth) => { if (columnWidth) { setListColumnWidths((oldWidths) => { return { ...oldWidths, timestampAbs: columnWidth } }) } }}>
+                <HeaderCell>{`time`}</HeaderCell>
+                <Cell style={{ padding: 2 }}>
+                    {(rowData) => { return rowData.timestamp ? (dateTimeFormat.format(new Date(1000 * rowData.timestamp))) : '' }}
+                </Cell>
+            </Column>
         </Table>
     </div >
 }

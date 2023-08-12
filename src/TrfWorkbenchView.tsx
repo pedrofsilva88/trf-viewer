@@ -21,8 +21,9 @@ export enum ItemType {
 
 export interface TrfReportItem {
     id: number,
-    itemType: ItemType,
+    itemType: ItemType, // only to identify the additionally created items for tree view
     icon?: TrfImageProps,
+    srcType?: string,
     srcIndex?: string,
     name: string,
     label: string,
@@ -122,10 +123,15 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
             const srcIndex = row[idxSrcIndexCol] as string
             const imageId = row[idxImageIdCol] as string
             const targetValue = row[idxTargetValueCol]
+            const src_category = row[idxSrcCategoryCol]
+            const src_type = row[idxSrcTypeCol]
+            const src_subtype = row[idxSrcSubtypeCol]
+
             const tvi: TrfReportItem = {
                 id: row[idxIdCol],
                 itemType: ItemType.TestSteps, // might be changed later below
                 icon: imageId ? { db: trf.db, id: Number(imageId) } : undefined,
+                srcType: src_type,
                 srcIndex: srcIndex,
                 name: row[idxNameCol],
                 label: row[idxLabelCol] || row[idxNameCol] || row[idxActivityCol],
@@ -157,9 +163,6 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
             // package?
             // we assume they are sorted...
             // todo add roots properly. for now we assume there is just one!
-            const src_category = row[idxSrcCategoryCol]
-            const src_type = row[idxSrcTypeCol]
-            const src_subtype = row[idxSrcSubtypeCol]
             if (src_type === 'PACKAGE') {
                 if (!src_subtype && src_category === 2) {
                     last_package = {

@@ -1,12 +1,12 @@
-import { DetailedHTMLProps, HTMLAttributes, useEffect, useMemo, useState } from 'react';
-import SvgIcon, { SvgIconProps } from '@mui/material/SvgIcon';
+import { DetailedHTMLProps, HTMLAttributes, useEffect, useMemo, useState } from 'react'
+import SvgIcon, { SvgIconProps } from '@mui/material/SvgIcon'
 
-import { Table } from 'rsuite';
+import { Table } from 'rsuite'
 
 import './TrfListView.css'
-import { TrfReport, TrfReportItem } from './TrfWorkbenchView';
-import { TrfImage } from './TrfImage';
-import { useLocalStorage, useMediaQuery } from 'usehooks-ts';;
+import { TrfReport, TrfReportItem } from './TrfWorkbenchView'
+import { TrfImage } from './TrfImage'
+import { useLocalStorage, useMediaQuery } from 'usehooks-ts'
 
 interface TrfListViewProps {
     trf: TrfReport,
@@ -176,7 +176,7 @@ export const TrfListView = (props: TrfListViewProps) => {
                 onResize={(columnWidth) => { if (columnWidth) { setListColumnWidths((oldWidths) => { return { ...oldWidths, value: columnWidth } }) } }}>
                 <HeaderCell>value</HeaderCell>
                 <Cell style={{ padding: 2 }}>
-                    {(rowData) => { return rowData.elementary_result === 1 ? rowData.info : '' }}
+                    {(rowData) => { return (rowData.srcType === 'PACKAGE' && rowData.elementary_result !== 1) ? '' : (rowData.info || '') }}
                 </Cell>
             </Column>
             <Column width={listColumnWidths.expectedValue || ColumnWidthsDefault.expectedValue} resizable

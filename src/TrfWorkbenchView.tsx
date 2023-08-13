@@ -187,7 +187,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
                                 id: last_package.id, activity: '', name: 'Test case', label: 'Test case', result: last_package.result, children: []
                             })
                         }
-                        last_package.children[0].children.push(tvi) // todo or a clone without children?
+                        last_package.children[0].children.push({ ...tvi, children: [] })
                     } else {
                         console.warn(`TrfWorkbenchView useEffect[trf]... !last_package for ${tvi.id} ${src_type} ${src_subtype}`)
                     }

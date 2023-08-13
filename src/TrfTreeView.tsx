@@ -157,11 +157,7 @@ export const TrfTreeView = (props: TrfTreeViewProps) => {
                     : nodeIds
                 if (nodeId !== undefined) {
                     const [itemType, id] = nodeIdToTypeAndId(nodeId)
-                    if (itemType === ItemType.Project || itemType === ItemType.Package) {
-                        props.onSelect(ViewType.Summary, id)
-                    } else {
-                        props.onSelect(ViewType.TestSteps, id)
-                    }
+                    props.onSelect(itemType === ItemType.Project ? ViewType.PrjSummary : (itemType === ItemType.Package ? ViewType.PkgSummary : ViewType.TestSteps), id)
                 } else {
                     props.onSelect(ViewType.None)
                 }

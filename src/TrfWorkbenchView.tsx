@@ -7,6 +7,7 @@ import { TrfTreeView } from './TrfTreeView';
 import { TrfListView } from './TrfListView';
 import { useLocalStorage } from 'usehooks-ts';
 import { TrfDetailView } from './TrfDetailView';
+import { TrfPkgSummaryView } from './TrfPkgSummaryView';
 
 export interface TrfReport {
     fileName: string,
@@ -42,7 +43,8 @@ export interface TrfReportItem {
 
 export enum ViewType {
     None,
-    Summary,
+    PrjSummary,
+    PkgSummary,
     TestSteps,
 }
 
@@ -238,7 +240,8 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
                             </Container>
                         </div>
                     }
-                    {listViewType === ViewType.Summary && <div>Summary view todo!</div>}
+                    {listViewType === ViewType.PkgSummary && <TrfPkgSummaryView items={rootReportItems} selected={treeSelectedItem ? treeSelectedItem : rootReportItems[0]} trf={props.trf} />}
+                    {listViewType === ViewType.PrjSummary && <div>Project summary view todo!</div>}
                 </Section>
             </Container>
         </div >

@@ -1,3 +1,9 @@
+/**
+ * todos:
+ * [] support type "textentity" (e.g.for 2.40.22)
+ * [] add first table with repetition of the list entry
+ */
+
 import { useMediaQuery } from 'usehooks-ts';
 import { TrfReport, TrfReportItem } from './TrfWorkbenchView'
 import { useEffect, useState } from 'react';

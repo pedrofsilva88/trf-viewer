@@ -21,3 +21,6 @@
 .trfTreeView .MuiTreeItem-root[result~="NONE"] {
     background-color: gray;
 }
+.trfTreeView .MuiTreeItem-root[result~="INCONCLUSIVE"] {
+    background-color: orange;
+}

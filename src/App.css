@@ -1,3 +1,18 @@
+@import "rsuite/dist/rsuite.css";
+
+.rs-table-cell-expand-wrapper {
+  margin-right: 2px;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.rs-table-cell-content {
+  padding: 2px 2px 0px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
 #root {
   width: 100%;
   margin: 0 auto;

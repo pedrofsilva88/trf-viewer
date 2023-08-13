@@ -1,0 +1,18 @@
+.trfPrjSummaryView {
+    text-align: left;
+    height: 100%;
+    width: 100%;
+    font-size: 0.6rem;
+    overflow: auto;
+    padding: 2px 0px 0px 2px;
+    display: grid;
+}
+
+.trfPrjSummaryView .MuiTableCell-sizeSmall {
+    font-size: inherit;
+    padding: 0px 6px 0px 0px;
+}
+
+.trfPrjSummaryView .MuiTableRow-head {
+    font-size: 0.7rem;
+}

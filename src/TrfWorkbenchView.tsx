@@ -8,6 +8,7 @@ import { TrfListView } from './TrfListView';
 import { useLocalStorage } from 'usehooks-ts';
 import { TrfDetailView } from './TrfDetailView';
 import { TrfPkgSummaryView } from './TrfPkgSummaryView';
+import { TrfPrjSummaryView } from './TrfPrjSummaryView';
 
 export interface TrfReport {
     fileName: string,
@@ -29,6 +30,7 @@ export interface TrfReportItem {
     srcIndex?: string,
     name: string,
     label: string,
+    activity: string,
     duration?: number,
     timestamp?: number,
     timestampRelative?: number,
@@ -60,7 +62,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
     const [packageItems, setPackageItems] = useState<TrfReportItem[]>([])
     const [treeSelectedNodeId, setTreeSelectedNodeId] = useState<number | undefined>(undefined)
     const [listSelectedNodeId, setListSelectedNodeId] = useState<number | undefined>(undefined)
-    const [listViewType, setListViewType] = useState<ViewType>(ViewType.None)
+    const [listViewType, setListViewType] = useState<ViewType>(ViewType.PrjSummary)
 
     const [lsSection1Width, _setLSSection1Width] = useLocalStorage<number>("bench.Section1Width", 200)
     const [lsSection2Height, _setLSSection2Height] = useLocalStorage<number>("bench.Section2Height", 400)
@@ -141,6 +143,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
                 srcIndex: srcIndex,
                 name: row[idxNameCol],
                 label: row[idxLabelCol] || row[idxNameCol] || row[idxActivityCol],
+                activity: row[idxActivityCol],
                 duration: row[idxDurationCol],
                 timestamp: row[idxTimestampCol],
                 timestampRelative: row[idxTimestampRelativeCol],
@@ -181,7 +184,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
                             last_package.children.push({
                                 elementary_result: 0,
                                 itemType: ItemType.TestSteps,
-                                id: last_package.id, name: 'Test case', label: 'Test case', result: last_package.result, children: []
+                                id: last_package.id, activity: '', name: 'Test case', label: 'Test case', result: last_package.result, children: []
                             })
                         }
                         last_package.children[0].children.push(tvi) // todo or a clone without children?
@@ -241,7 +244,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
                         </div>
                     }
                     {listViewType === ViewType.PkgSummary && <TrfPkgSummaryView items={rootReportItems} selected={treeSelectedItem ? treeSelectedItem : rootReportItems[0]} trf={props.trf} />}
-                    {listViewType === ViewType.PrjSummary && <div>Project summary view todo!</div>}
+                    {listViewType === ViewType.PrjSummary && <TrfPrjSummaryView items={rootReportItems} selected={treeSelectedItem ? treeSelectedItem : rootReportItems[0]} trf={props.trf} />}
                 </Section>
             </Container>
         </div >

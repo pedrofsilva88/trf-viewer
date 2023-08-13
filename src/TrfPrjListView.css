@@ -1,0 +1,22 @@
+.trfPrjListView {
+    text-align: left;
+    height: 100%;
+    width: 100%;
+    font-size: 0.6rem;
+}
+
+.trfPrjListView .rs-table-cell-content:has(span[result~="SUCCESS"]) {
+    background-color: green;
+}
+
+.trfPrjListView .rs-table-cell-content:has(span[result~="FAILED"]) {
+    background-color: red;
+}
+
+.trfPrjListView .rs-table-cell-content:has(span[result~="ERROR"]) {
+    background-color: darkred;
+}
+
+.trfPrjListView .rs-table-cell-content:has(span[result~="NONE"]) {
+    background-color: gray;
+}

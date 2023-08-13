@@ -47,14 +47,6 @@ export const TrfPrjSummaryView = (props: TrfPrjSummaryViewProps) => {
     const [lsSectionHeight, _setLSSectionHeight] = useLocalStorage<number>("prjSummary.SectionHeight", 400)
     const sectionHeight = useRef<number>(lsSectionHeight)
 
-
-    useEffect(() => {
-        console.log(`TrfPrjSummaryView.useEffect[props.items]...${props.items.length}`)
-        if (props.items.length > 0 && props.items[0].children.length > 0) {
-            setListSelectedItem(props.items[0].children[props.items[0].children.length - 1])
-        }
-    }, [props.items])
-
     useEffect(() => {
         console.time(`TrfPrjSummaryView.useEffect[selected]...`)
         try {

@@ -2,7 +2,11 @@ import { DB } from "@sqlite.org/sqlite-wasm"
 
 interface TableColumn {
     key: string,
-    label?: string
+    label?: string,
+    options: { // can be set afterwards before rendering the table
+        formatter?: (value: string) => string,
+        unit?: string,
+    }
 }
 
 export interface TableEntity {
@@ -25,13 +29,13 @@ export const getTableEntityCellTable = (db: DB, entityId: number, name?: string)
         if (rowCell[0] > 0) { break }
         const col = rowCell[1]
         while (columns.length < col) {
-            columns.push({ key: columns.length.toString() })
+            columns.push({ key: columns.length.toString(), options: {} })
         }
-        columns.push({ key: columns.length.toString(), label: rowCell[2] })
+        columns.push({ key: columns.length.toString(), label: rowCell[2], options: {} })
     }
     // fill missing columns:
     while (columns.length < maxCol + 1) {
-        columns.push({ key: columns.length.toString() })
+        columns.push({ key: columns.length.toString(), options: {} })
     }
     // fill data
     const data: Record<string, string>[] = []

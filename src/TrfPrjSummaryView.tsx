@@ -19,23 +19,12 @@ import Grid from '@mui/material/Unstable_Grid2'
 import { Bar, Container, Section } from '@column-resizer/react';
 import { TrfDetailView } from './TrfDetailView';
 import { TrfPrjListView } from './TrfPrjListView';
-import { getTableEntityCellTable, timeFormat } from './utils';
+import { TableEntity, getTableEntityCellTable, timeFormat } from './utils';
 
 interface TrfPrjSummaryViewProps {
     trf: TrfReport,
     items: TrfReportItem[],
     selected: TrfReportItem
-}
-
-interface TableColumn {
-    key: string,
-    label?: string
-}
-
-interface TableEntity {
-    name?: string,
-    columns: TableColumn[],
-    data: { [key: string]: string }[]
 }
 
 export const TrfPrjSummaryView = (props: TrfPrjSummaryViewProps) => {
@@ -57,8 +46,8 @@ export const TrfPrjSummaryView = (props: TrfPrjSummaryViewProps) => {
                 const infoTable: TableEntity = {
                     name: 'info',
                     columns: [
-                        { key: 'attr', label: '' },
-                        { key: 'value', label: '' }
+                        { key: 'attr', label: '', options: {} },
+                        { key: 'value', label: '', options: {} }
                     ],
                     data: [
                         { attr: 'result:', value: (selected.result === 'NONE' && selected.children.length === 0) ? '(SKIPPED)' : selected.result },
@@ -77,6 +66,12 @@ export const TrfPrjSummaryView = (props: TrfPrjSummaryViewProps) => {
                     if (row.type === 'tableentity_cell' && row.name === 'Statistic') {
                         console.log(`TrfPrjSummaryView.useEffect[selected] got statistics row id:${row.id}`, row)
                         const statsTable = getTableEntityCellTable(trf.db, row.id, row.name)
+                        for (const col of statsTable.columns) {
+                            if (col.label === 'Percentage') {
+                                col.options.formatter = (val) => Number(val).toFixed(2)
+                                col.options.unit = '%'
+                            }
+                        }
                         newEntityTables.push(statsTable)
                     }
                 }
@@ -97,7 +92,7 @@ export const TrfPrjSummaryView = (props: TrfPrjSummaryViewProps) => {
     const tableFromTableEntity = (et: TableEntity, key: string) => {
         return <div key={key} style={{ display: 'table', padding: '6px 0px 4px 0px' }}>
             <TableContainer /*component={Paper}*/>
-                <Table sx={{ minWidth: 300 }} size="small" padding='none'>
+                <Table sx={{ minWidth: 200 }} size="small" padding='none'>
                     <TableHead>
                         <TableRow>
                             {et.columns.map((col) => <TableCell key={col.key}>{col.label || ''}</TableCell>)}
@@ -111,7 +106,7 @@ export const TrfPrjSummaryView = (props: TrfPrjSummaryViewProps) => {
                             >
                                 {et.columns.map((col, idx) => idx === 0 ? <TableCell key={col.key} component="th" scope="row">
                                     {row[col.key] || ''}
-                                </TableCell> : <TableCell key={col.key}>{row[col.key] || ''}</TableCell>)}
+                                </TableCell> : <TableCell key={col.key}>{((col.options.formatter ? col.options.formatter(row[col.key]) : row[col.key]) || '') + (col.options.unit ? col.options.unit : '')}</TableCell>)}
                             </TableRow>
                         ))}
                     </TableBody>
@@ -133,7 +128,7 @@ export const TrfPrjSummaryView = (props: TrfPrjSummaryViewProps) => {
                         {selected.timestamp && <div style={{ width: '100%', textAlign: 'center', fontSize: "0.7rem" }}>{new Date(selected.timestamp * 1000).toString()}</div>}
                         <Grid container>
                             <Grid>{entityTables.length > 0 && <div style={{ padding: '0px 0px 4px 0px' }}>{tableFromTableEntity(entityTables[0], 'table_info')}</div>}</Grid>
-                            <Grid xsOffset={"auto"}>{entityTables.length > 1 && <div style={{ padding: '0px 0px 0px 0px' }}>{tableFromTableEntity(entityTables[1], `table_${entityTables[1].name || 1}`)}</div>}</Grid>
+                            <Grid xsOffset={"auto"}>{entityTables.length > 1 && <div style={{ padding: '0px 4px 0px 0px' }}>{tableFromTableEntity(entityTables[1], `table_${entityTables[1].name || 1}`)}</div>}</Grid>
                         </Grid>
                         <Divider textAlign="left">detailed report</Divider>
                     </div>

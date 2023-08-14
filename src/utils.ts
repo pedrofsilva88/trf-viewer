@@ -8,7 +8,7 @@ interface TableColumn {
 export interface TableEntity {
     name?: string,
     columns: TableColumn[],
-    data: Map<string, string>[]
+    data: Record<string, string>[]
 }
 
 export const getTableEntityCellTable = (db: DB, entityId: number, name?: string): TableEntity => {
@@ -34,16 +34,16 @@ export const getTableEntityCellTable = (db: DB, entityId: number, name?: string)
         columns.push({ key: columns.length.toString() })
     }
     // fill data
-    const data: Map<string, string>[] = []
+    const data: Record<string, string>[] = []
     for (const rowCell of resultRows) {
         if (rowCell[0] <= 0) { continue }
         const row = rowCell[0] - 1
         const col = rowCell[1]
         const value = rowCell[2]
         // we keep empty rows (this allows some attacks... e.g. with high values in the db (todo add sanity checks!))
-        while (data.length <= row) { data.push(new Map()) }
+        while (data.length <= row) { data.push({}) }
         const dataRow = data[row]
-        dataRow.set(col.toString(), value)
+        dataRow[col.toString()] = value
     }
     return { name, columns, data }
 }

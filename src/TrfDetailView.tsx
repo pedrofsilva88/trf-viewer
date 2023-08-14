@@ -78,8 +78,8 @@ export const TrfDetailView = (props: TrfDetailViewProps) => {
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
                                 {et.columns.map((col, idx) => idx === 0 ? <TableCell key={col.key} component="th" scope="row">
-                                    {row.get(col.key) || ''}
-                                </TableCell> : <TableCell key={col.key}>{row.get(col.key) || ''}</TableCell>)}
+                                    {row[col.key] || ''}
+                                </TableCell> : <TableCell key={col.key}>{row[col.key] || ''}</TableCell>)}
                             </TableRow>
                         ))}
                     </TableBody>

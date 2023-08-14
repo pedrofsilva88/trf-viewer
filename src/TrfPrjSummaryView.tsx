@@ -15,10 +15,11 @@ import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import Divider from '@mui/material/Divider';
+import Grid from '@mui/material/Unstable_Grid2'
 import { Bar, Container, Section } from '@column-resizer/react';
 import { TrfDetailView } from './TrfDetailView';
 import { TrfPrjListView } from './TrfPrjListView';
-import { timeFormat } from './utils';
+import { getTableEntityCellTable, timeFormat } from './utils';
 
 interface TrfPrjSummaryViewProps {
     trf: TrfReport,
@@ -62,11 +63,26 @@ export const TrfPrjSummaryView = (props: TrfPrjSummaryViewProps) => {
                     data: [
                         { attr: 'result:', value: (selected.result === 'NONE' && selected.children.length === 0) ? '(SKIPPED)' : selected.result },
                         { attr: 'execution mode:', value: trf.dbInfo.execution_mode },
-                        { attr: 'duration:', value: timeFormat(selected.duration || 0, false) },
+                        { attr: 'duration [h:mm:ss]:', value: timeFormat(selected.duration || 0, false) },
                     ]
                 }
                 newEntityTables.push(infoTable) // the first one will be shown outside the tabs
             }
+            {
+                // any statistics?
+                const resultRows: any[] =
+                    trf.db.exec({ sql: `SELECT * from entity where reportitem_id=${selected.id};`, returnValue: 'resultRows', rowMode: 'object' })
+                console.log(`TrfPrjSummaryView.useEffect[selected] got ${resultRows.length} entity rows for ${selected.id}`, resultRows)
+                for (const row of resultRows) {
+                    if (row.type === 'tableentity_cell' && row.name === 'Statistic') {
+                        console.log(`TrfPrjSummaryView.useEffect[selected] got statistics row id:${row.id}`, row)
+                        const statsTable = getTableEntityCellTable(trf.db, row.id, row.name)
+                        newEntityTables.push(statsTable)
+                    }
+                }
+
+            }
+
             setEntityTables(newEntityTables)
         } catch (e) {
             console.error(`TrfPrjSummaryView.useEffect[selected] got error:${e} `)
@@ -115,7 +131,10 @@ export const TrfPrjSummaryView = (props: TrfPrjSummaryViewProps) => {
                     <div style={{ flex: '0 1 auto' }}>
                         <div style={{ width: '100%', textAlign: 'center', fontSize: "1rem" }}>{`Summary: ${selected.name || selected.label}`}</div>
                         {selected.timestamp && <div style={{ width: '100%', textAlign: 'center', fontSize: "0.7rem" }}>{new Date(selected.timestamp * 1000).toString()}</div>}
-                        {entityTables.length > 0 && <div style={{ padding: '0px 0px 48px 0px' }}>{tableFromTableEntity(entityTables[0], 'table_info')}</div>}
+                        <Grid container>
+                            <Grid>{entityTables.length > 0 && <div style={{ padding: '0px 0px 4px 0px' }}>{tableFromTableEntity(entityTables[0], 'table_info')}</div>}</Grid>
+                            <Grid xsOffset={"auto"}>{entityTables.length > 1 && <div style={{ padding: '0px 0px 0px 0px' }}>{tableFromTableEntity(entityTables[1], `table_${entityTables[1].name || 1}`)}</div>}</Grid>
+                        </Grid>
                         <Divider textAlign="left">detailed report</Divider>
                     </div>
                     <div style={{ flex: '1 1 auto', maxHeight: '100%', display: 'content' }}>

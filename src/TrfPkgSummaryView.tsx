@@ -177,7 +177,7 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
 
         }));
 
-        return entityTables.slice(1).map((et, idx) => <StyledTab label={et.name || `table ${idx} `} {...a11yProps(idx)} />)
+        return entityTables.slice(1).map((et, idx) => <StyledTab key={`tab_${idx}`} label={et.name || `table ${idx} `} {...a11yProps(idx)} />)
     }, [entityTables])
 
     const tableFromTableEntity = (et: TableEntity, key: string) => {
@@ -222,8 +222,7 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
                 <div
                     role="tabpanel"
                     hidden={value !== index}
-                    id={`simple - tabpanel - ${index} `}
-                    aria-labelledby={`simple - tab - ${index} `}
+                    id={`tabpanel_${index} `}
                     {...other}
                 >
                     {value === index && (
@@ -233,7 +232,7 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
             );
         }
 
-        return entityTables.slice(1).map((et, idx) => <CustomTabPanel value={visibleTab} index={idx}>
+        return entityTables.slice(1).map((et, idx) => <CustomTabPanel key={`tabpanel_${et.name || 'n'}`} value={visibleTab} index={idx}>
             {tableFromTableEntity(et, `div_et_${idx} `)}
         </CustomTabPanel>)
     }, [entityTables, visibleTab])
@@ -244,7 +243,7 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
         {entityTables.length > 0 && <div style={{ padding: '0px 0px 48px 0px' }}>{tableFromTableEntity(entityTables[0], 'table_info')}</div>}
         <Divider />
         <Box sx={{ width: '100%' }}>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Box key={`tabs_box`} sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs value={visibleTab} onChange={handleTabChange} indicatorColor='primary' sx={{ minWidth: 24 }}>
                     {tabs}
                 </Tabs>

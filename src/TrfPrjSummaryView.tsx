@@ -18,6 +18,7 @@ import Divider from '@mui/material/Divider';
 import { Bar, Container, Section } from '@column-resizer/react';
 import { TrfDetailView } from './TrfDetailView';
 import { TrfPrjListView } from './TrfPrjListView';
+import { timeFormat } from './utils';
 
 interface TrfPrjSummaryViewProps {
     trf: TrfReport,
@@ -52,21 +53,6 @@ export const TrfPrjSummaryView = (props: TrfPrjSummaryViewProps) => {
         try {
             const newEntityTables: TableEntity[] = []
             {
-                const duration = selected.duration || 0
-
-                const timeFormat = (distance: number) => {
-                    //const days = Math.floor(distance / (3600 * 24))
-                    //distance -= days * (3600 * 24)
-                    const hours = Math.floor(distance / 3600)
-                    distance -= hours * 3600
-                    const minutes = Math.floor(distance / 60)
-                    distance -= minutes * 60
-                    const seconds = Math.floor(distance)
-                    distance -= seconds
-                    //const ms = distance
-                    return `${hours}:${('0' + minutes).slice(-2)}:${('0' + seconds).slice(-2)}`;
-                }
-
                 const infoTable: TableEntity = {
                     name: 'info',
                     columns: [
@@ -76,7 +62,7 @@ export const TrfPrjSummaryView = (props: TrfPrjSummaryViewProps) => {
                     data: [
                         { attr: 'result:', value: (selected.result === 'NONE' && selected.children.length === 0) ? '(SKIPPED)' : selected.result },
                         { attr: 'execution mode:', value: trf.dbInfo.execution_mode },
-                        { attr: 'duration:', value: timeFormat(duration) },
+                        { attr: 'duration:', value: timeFormat(selected.duration || 0, false) },
                     ]
                 }
                 newEntityTables.push(infoTable) // the first one will be shown outside the tabs

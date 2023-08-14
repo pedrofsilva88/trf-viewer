@@ -19,6 +19,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import { styled } from '@mui/material/styles';
 import Divider from '@mui/material/Divider';
+import { timeFormat } from './utils';
 
 interface TrfPkgSummaryViewProps {
     trf: TrfReport,
@@ -50,21 +51,6 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
         try {
             const newEntityTables: TableEntity[] = []
             {
-                const duration = selected.duration || 0
-
-                const timeFormat = (distance: number) => {
-                    //const days = Math.floor(distance / (3600 * 24))
-                    //distance -= days * (3600 * 24)
-                    const hours = Math.floor(distance / 3600)
-                    distance -= hours * 3600
-                    const minutes = Math.floor(distance / 60)
-                    distance -= minutes * 60
-                    const seconds = Math.floor(distance)
-                    distance -= seconds
-                    const ms = distance
-                    return `${hours}:${('0' + minutes).slice(-2)}:${('0' + seconds).slice(-2)}.${ms.toFixed(3).slice(2)}`;
-                }
-
                 const infoTable: TableEntity = {
                     name: 'info',
                     columns: [
@@ -74,7 +60,7 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
                     data: [
                         { attr: 'result:', value: (selected.result === 'NONE' && selected.children.length === 0) ? '(SKIPPED)' : selected.result },
                         { attr: 'execution mode:', value: trf.dbInfo.execution_mode },
-                        { attr: 'duration:', value: timeFormat(duration) },
+                        { attr: 'duration:', value: timeFormat(selected.duration || 0, true) },
                         { attr: 'comment:', value: selected.comment },
                         { attr: 'file:', value: selected.info },
                         { attr: 'test pc:', value: trf.dbInfo.teststand },

@@ -47,3 +47,26 @@ export const getTableEntityCellTable = (db: DB, entityId: number, name?: string)
     }
     return { name, columns, data }
 }
+
+/**
+ * Output a duration in h:mm:ss[.mmm] format
+ * @param durationSecs in seconds
+ * @param outputMs output ms with 3 digits as well?
+ * @returns string
+ */
+export const timeFormat = (durationSecs: number, outputMs: boolean) => {
+    //const days = Math.floor(distance / (3600 * 24))
+    //distance -= days * (3600 * 24)
+    const hours = Math.floor(durationSecs / 3600)
+    durationSecs -= hours * 3600
+    const minutes = Math.floor(durationSecs / 60)
+    durationSecs -= minutes * 60
+    const seconds = Math.floor(durationSecs)
+    durationSecs -= seconds
+    const ms = durationSecs
+    if (outputMs) {
+        return `${hours}:${('0' + minutes).slice(-2)}:${('0' + seconds).slice(-2)}.${ms.toFixed(3).slice(2)}`;
+    } else {
+        return `${hours}:${('0' + minutes).slice(-2)}:${('0' + seconds).slice(-2)}`
+    }
+}

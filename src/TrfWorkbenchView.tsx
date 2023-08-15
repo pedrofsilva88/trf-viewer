@@ -207,9 +207,9 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
     const listSelectedItem = listSelectedNodeId !== undefined ? reportItemMap.get(listSelectedNodeId) : undefined
 
     if (rootReportItems.length) {
-        return <div className='trfWorkbenchView'>
+        return <div className='trfWorkbenchView' style={{ flex: '1 1 auto', maxHeight: 'calc(100vh - 80px)' }}>
             {false && [...Array(43).keys()].map(i => <TrfImage db={props.trf.db} id={1 + i} />)}
-            <Container style={{ height: '600px'/*, background: '#80808080' */ }}>
+            <Container style={{ height: '100%'/*, background: '#80808080' */ }}>
                 <Section minSize={100} defaultSize={section1Width.current} maxSize={400} onSizeChanged={(curSize) => {
                     section1Width.current = curSize // need to avoid re-render here so useRef...
                     localStorage.setItem("bench.Section1Width", JSON.stringify(section1Width.current))

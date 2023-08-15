@@ -212,8 +212,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <ConfirmProvider >
-
-        <Box sx={{ flexGrow: 1 }}>
+            <Box sx={{ flexGrow: 0 }}>
           <AppBar position="static" color='primary'>
             <Toolbar>
               <IconButton
@@ -289,15 +288,12 @@ function App() {
         </Box>
         {loading && <>
           <div id="progress" className='indeterminateProgressBar'><div className='indeterminateProgressBarProgress' /></div></>}
-        <div className="card">
-            {testReports.length === 0 /*&& compareView === undefined */ && <p>
-            Open a trf test report file...
-          </p>}
+            <div style={{ display: 'contents' }}>
+              {testReports.length === 0 /*&& compareView === undefined */ && <div style={{ flex: '1 1 auto' }} > <p>Open a trf test report file...</p></div>}
             {testReports.length > 0 && testReports.map((report, idx) => <TrfWorkbenchView key={`rep_${idx}`} trf={report} />)}
-        </div>
-        {false && files.length > 0 &&
-          files.map((f: File) => (typeof f.name === 'string' ? f.name : '')).join(',') || ''}
-        <div className='gitSha'>build from <a href="https://github.com/mbehr1/trf-viewer" target="_blank">github/mbehr1/trf-viewer</a> commit #{__COMMIT_HASH__}</div>
+
+              <div className='gitSha' style={{ flex: '0 1 20px' }}>build from <a href="https://github.com/mbehr1/trf-viewer" target="_blank">github/mbehr1/trf-viewer</a> commit #{__COMMIT_HASH__}</div>
+            </div>
       </ConfirmProvider>
     </ThemeProvider>
     </Sqlite3Context.Provider >

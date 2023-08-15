@@ -18,6 +18,9 @@
   margin: 0 auto;
   padding: 0;
   text-align: center;
+  display: flex;
+    flex-flow: column;
+    height: 100vh;
 }
 
 .logo {
@@ -90,10 +93,6 @@
   to {
     left: 100%;
   }
-}
-.card {
-  width: 100%;
-  padding: 0;
 }
 
 .testSummaryContainer {

@@ -15,7 +15,7 @@ import TableHead from '@mui/material/TableHead';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
-import { TableEntity, getTableEntityCellTable } from './utils';
+import { TableEntity, getTableEntityCellTable, timeFormat } from './utils';
 
 interface TrfDetailViewProps {
     trf: TrfReport,
@@ -48,6 +48,20 @@ export const TrfDetailView = (props: TrfDetailViewProps) => {
                     console.warn(`TrfDetailView.useEffect[selected] unknown entity type: ${entity.type}`, entity)
                 }
             }
+            // add duration if it exists:
+            if (selected.duration) {
+                newEntityTables.push({
+                    name: "duration",
+                    columns: [{
+                        "key": "duration",
+                        "label": "Duration",
+                        options: {
+                            formatter: v => timeFormat(v, true)
+                        }
+                    }],
+                    data: [{ duration: selected.duration.toString() }]
+                })
+            }
             setEntityTables(newEntityTables)
 
             console.timeEnd(`TrfDetailView.useEffect[selected]...`)
@@ -56,7 +70,7 @@ export const TrfDetailView = (props: TrfDetailViewProps) => {
             setEntityTables([])
         }
         return () => {
-            console.log(`TrfDetailView.useEffect[selected] unmount`)
+            // console.log(`TrfDetailView.useEffect[selected] unmount`)
         }
     }, [selected])
 
@@ -78,8 +92,8 @@ export const TrfDetailView = (props: TrfDetailViewProps) => {
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
                                 {et.columns.map((col, idx) => idx === 0 ? <TableCell key={col.key} component="th" scope="row">
-                                    {row[col.key] || ''}
-                                </TableCell> : <TableCell key={col.key}>{row[col.key] || ''}</TableCell>)}
+                                    {((col.options.formatter ? col.options.formatter(row[col.key]) : row[col.key]) || '') + (col.options.unit ? col.options.unit : '')}
+                                </TableCell> : <TableCell key={col.key}>{((col.options.formatter ? col.options.formatter(row[col.key]) : row[col.key]) || '') + (col.options.unit ? col.options.unit : '')}</TableCell>)}
                             </TableRow>
                         ))}
                     </TableBody>

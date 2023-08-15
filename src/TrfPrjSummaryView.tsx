@@ -105,7 +105,7 @@ export const TrfPrjSummaryView = (props: TrfPrjSummaryViewProps) => {
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
                                 {et.columns.map((col, idx) => idx === 0 ? <TableCell key={col.key} component="th" scope="row">
-                                    {row[col.key] || ''}
+                                    {((col.options.formatter ? col.options.formatter(row[col.key]) : row[col.key]) || '') + (col.options.unit ? col.options.unit : '')}
                                 </TableCell> : <TableCell key={col.key}>{((col.options.formatter ? col.options.formatter(row[col.key]) : row[col.key]) || '') + (col.options.unit ? col.options.unit : '')}</TableCell>)}
                             </TableRow>
                         ))}

@@ -58,7 +58,8 @@ export const getTableEntityCellTable = (db: DB, entityId: number, name?: string)
  * @param outputMs output ms with 3 digits as well?
  * @returns string
  */
-export const timeFormat = (durationSecs: number, outputMs: boolean) => {
+export const timeFormat = (durationSecsNrStr: number | string, outputMs: boolean = false) => {
+    let durationSecs = typeof durationSecsNrStr !== 'number' ? Number(durationSecsNrStr) : durationSecsNrStr
     //const days = Math.floor(distance / (3600 * 24))
     //distance -= days * (3600 * 24)
     const hours = Math.floor(durationSecs / 3600)

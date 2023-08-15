@@ -292,7 +292,7 @@ function App() {
               {testReports.length === 0 /*&& compareView === undefined */ && <div style={{ flex: '1 1 auto' }} > <p>Open a trf test report file...</p></div>}
             {testReports.length > 0 && testReports.map((report, idx) => <TrfWorkbenchView key={`rep_${idx}`} trf={report} />)}
 
-              <div className='gitSha' style={{ flex: '0 1 20px' }}>build from <a href="https://github.com/mbehr1/trf-viewer" target="_blank">github/mbehr1/trf-viewer</a> commit #{__COMMIT_HASH__}</div>
+              <div className='gitSha' style={{ flex: '0 1 auto' }}>build from <a href="https://github.com/mbehr1/trf-viewer" target="_blank">github/mbehr1/trf-viewer</a> commit #{__COMMIT_HASH__}</div>
             </div>
       </ConfirmProvider>
     </ThemeProvider>

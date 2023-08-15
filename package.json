@@ -24,6 +24,7 @@
     "dexie-react-hooks": "^1.1.6",
     "file-selector": "github:mbehr1/file-selector",
     "material-ui-confirm": "^3.0.9",
+    "notistack": "^3.0.1",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.2.0",

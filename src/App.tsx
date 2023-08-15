@@ -11,6 +11,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { ConfirmProvider } from "material-ui-confirm";
+import { SnackbarProvider, enqueueSnackbar } from 'notistack'
 
 import './App.css'
 import Dropzone, { FileRejection } from 'react-dropzone';
@@ -22,12 +23,13 @@ import DifferenceIcon from '@mui/icons-material/Difference';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { DB, Sqlite3 } from '@sqlite.org/sqlite-wasm';
-//import { SelectReferenceForm } from './SelectReferenceForm';
-//import { addReferenceReport, db } from './db';
-// import { useLiveQuery } from 'dexie-react-hooks';
 
 import { Sqlite3Context, useSqliteInitEffect } from './sqlite3';
 import { TrfWorkbenchView, TrfReport } from './TrfWorkbenchView';
+
+// supported (as known) db_version:
+const DB_VERSION_MIN = 64
+const DB_VERSION_MAX = 64
 
 const isSameFile = (a: File, b: File): boolean => {
   return a.name === b.name && a.type === b.type && a.lastModified === b.lastModified;
@@ -141,6 +143,13 @@ function App() {
             const info: any[] = db.exec({ sql: "SELECT * from info limit 1; ", returnValue: "resultRows", rowMode: "object" })
             if (info.length > 0) {
               console.log(`db.info[0]=`, info[0])
+              if (info[0].db_version < DB_VERSION_MIN) {
+                enqueueSnackbar(`Un-known/-tested (too old) db version ${info[0].db_version} < ${DB_VERSION_MIN}. Please report any issues.`,
+                  { preventDuplicate: true, variant: 'warning', autoHideDuration: 9000 })
+              } else if (info[0].db_version > DB_VERSION_MAX) {
+                enqueueSnackbar(`Un-known/-tested (newer) db version ${info[0].db_version} > ${DB_VERSION_MAX}. Please report any issues.`,
+                  { preventDuplicate: true, variant: 'warning', autoHideDuration: 9000 })
+              }
               return {
                 fileName: fileName,
                 db: db,
@@ -198,6 +207,7 @@ function App() {
   }), [prefersDarkMode])
 
   return (
+    <SnackbarProvider >
     <Sqlite3Context.Provider value={sqlite3}>
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -291,6 +301,7 @@ function App() {
       </ConfirmProvider>
     </ThemeProvider>
     </Sqlite3Context.Provider >
+    </SnackbarProvider>
   )
 }
 

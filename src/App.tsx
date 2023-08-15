@@ -144,10 +144,10 @@ function App() {
             if (info.length > 0) {
               console.log(`db.info[0]=`, info[0])
               if (info[0].db_version < DB_VERSION_MIN) {
-                enqueueSnackbar(`Un-known/-tested (too old) db version ${info[0].db_version} < ${DB_VERSION_MIN}. Please report any issues.`,
+                enqueueSnackbar(`Un-known/-tested (too old) db version ${info[0].db_version} < ${DB_VERSION_MIN}. App name :'${info[0].app_name || ''} (version: ${info[0].app_version || ''}})'. Please report any issues.`,
                   { preventDuplicate: true, variant: 'warning', autoHideDuration: 9000 })
               } else if (info[0].db_version > DB_VERSION_MAX) {
-                enqueueSnackbar(`Un-known/-tested (newer) db version ${info[0].db_version} > ${DB_VERSION_MAX}. Please report any issues.`,
+                enqueueSnackbar(`Un-known/-tested (newer) db version ${info[0].db_version} > ${DB_VERSION_MAX}. App name :'${info[0].app_name || ''} (version: ${info[0].app_version || ''}})'. Please report any issues.`,
                   { preventDuplicate: true, variant: 'warning', autoHideDuration: 9000 })
               }
               return {

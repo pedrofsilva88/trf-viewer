@@ -90,7 +90,12 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
                     trf.db.exec({ sql: `SELECT * from constant; `, returnValue: 'resultRows', rowMode: 'object' })
                 // todo check whether callback or rowMode array is faster
                 console.log(`TrfPkgSummaryView.useEffect[selected] got ${resultRows.length} constant rows`)
-
+                // sort by name
+                resultRows.sort((a, b) => {
+                    const na: string = a.name || ''
+                    const nb: string = b.name || ''
+                    return na.localeCompare(nb)
+                })
                 const constsTable: TableEntity = {
                     name: "global constants",
                     columns: [

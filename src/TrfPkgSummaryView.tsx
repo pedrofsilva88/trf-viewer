@@ -110,6 +110,41 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
             }
             {
                 const resultRows: any[] =
+                    trf.db.exec({ sql: `SELECT tbc.* from tbc join ctx on tbc.id = ctx.tbc_id join reportitem on reportitem.ctx_id=ctx.id where reportitem.id =${selected.id}; `, returnValue: 'resultRows', rowMode: 'object' })
+                //console.log(`TrfPkgSummaryView.useEffect[selected] got ${resultRows.length} tbc rows`)
+                if (resultRows.length === 1) {
+                    const constsTable: TableEntity = {
+                        name: "testbench config",
+                        columns: [
+                            { key: 'cat' },
+                            { key: 'name' },
+                            { key: 'value' },
+                        ],
+                        data: [{
+                            cat: 'config file',
+                            value: resultRows[0].path
+                        }]
+                    }
+                    const resultRows2: any[] =
+                        trf.db.exec({ sql: `SELECT * from tbc_tool where tbc_id = ${resultRows[0].id} order by id; `, returnValue: 'resultRows', rowMode: 'object' })
+                    //console.log(`TrfPkgSummaryView.useEffect[selected] got ${resultRows2.length} tbc_tool rows`)
+                    const data = constsTable.data
+                    for (const tool of resultRows2 as { name: string, version: string, status: string, location: string, patches: string }[]) {
+                        data.push({ cat: tool.name })
+                        data.push({ name: "host", value: tool.location })
+                        data.push({ name: "state", value: tool.status })
+                        data.push({ name: "version", value: tool.version })
+                        data.push({ name: "loaded patches", value: tool.patches })
+                    }
+
+                    newEntityTables.push(constsTable)
+                } else {
+                    console.warn(`TrfPkgSummaryView.useEffect[selected] got unexpected #${resultRows.length} tbc rows!`)
+                }
+            }
+
+            {
+                const resultRows: any[] =
                     trf.db.exec({ sql: `SELECT * from libraries; `, returnValue: 'resultRows', rowMode: 'object' })
                 // todo check whether callback or rowMode array is faster
                 console.log(`TrfPkgSummaryView.useEffect[selected] got ${resultRows.length} libraries rows`)

@@ -110,6 +110,70 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
             }
             {
                 const resultRows: any[] =
+                    trf.db.exec({ sql: `SELECT tcf.* from tcf join ctx on tcf.id = ctx.tcf_id join reportitem on reportitem.ctx_id=ctx.id where reportitem.id =${selected.id}; `, returnValue: 'resultRows', rowMode: 'object' })
+                //console.log(`TrfPkgSummaryView.useEffect[selected] got ${resultRows.length} tbc rows`)
+                if (resultRows.length === 1) {
+                    const constsTable: TableEntity = {
+                        name: "test config",
+                        columns: [
+                            { key: 'cat' },
+                            { key: 'name' },
+                            { key: 'value' },
+                        ],
+                        data: [
+                            { cat: 'config file', value: resultRows[0].path },
+                            { cat: 'general' },
+                            { name: 'tester', value: resultRows[0].editor },
+                            { name: 'data dir', value: resultRows[0].datadir },
+                            { name: 'package dir', value: resultRows[0].pkgdir },
+                        ]
+                    }
+                    const rrMappings: any[] =
+                        trf.db.exec({ sql: `SELECT * from tcf_mappingfile where tcf_id = ${resultRows[0].id};`, returnValue: 'resultRows', rowMode: 'object' })
+                    const data = constsTable.data
+                    for (const mapping of rrMappings as { filename: string }[]) {
+                        data.push({ name: "global mapping file", value: mapping.filename })
+                    }
+                    // todo add tcf_execution
+                    const rrEcus: any[] =
+                        trf.db.exec({ sql: `SELECT * from tcf_ecu where tcf_id = ${resultRows[0].id};`, returnValue: 'resultRows', rowMode: 'object' })
+                    for (const ecu of rrEcus as { [key: string]: string }[]) {
+                        data.push({ cat: `ECUs: ${ecu.id || ''}`, })
+                        data.push({ name: "A2l file", value: ecu.a2lfile })
+                        data.push({ name: "hex file", value: ecu.hexfile })
+                        data.push({ name: "diagnosis db", value: ecu.diagnostic_db })
+                        data.push({ name: "SGBD", value: `${ecu.sgbd || ''} (Version: ${ecu.sgbd_version || ''})` })
+                        data.push({ name: "LogicalLink", value: ecu.logilink })
+                        data.push({ name: "ELF", value: ecu.elf })
+                        data.push({ name: "DEBUG-HEX", value: ecu.debug_hex })
+                        data.push({ name: "DLT db", value: ecu.log_database })
+                        data.push({ name: "DLT filter file", value: ecu.log_filter_file })
+                    }
+                    const rrBus: any[] =
+                        trf.db.exec({ sql: `SELECT * from tcf_bus where tcf_id = ${resultRows[0].id} order by id;`, returnValue: 'resultRows', rowMode: 'object' })
+                    for (const bus of rrBus as { [key: string]: string }[]) {
+                        data.push({ cat: `bus: ${bus.id || ''}`, })
+                        data.push({ name: "database", value: bus.dbpath })
+                        data.push({ name: "fibex channel", value: bus.fbxchn })
+                    }
+
+                    const rrConsts: any[] =
+                        trf.db.exec({ sql: `SELECT * from tcf_const where tcf_id = ${resultRows[0].id};`, returnValue: 'resultRows', rowMode: 'object' })
+                    if (rrConsts.length) {
+                        data.push({ cat: `constants definition files`, })
+                        for (const rrConst of rrConsts as { [key: string]: string }[]) {
+                            data.push({ name: rrConst.const_file })
+                        }
+                    }
+
+                    newEntityTables.push(constsTable)
+                } else {
+                    console.warn(`TrfPkgSummaryView.useEffect[selected] got unexpected #${resultRows.length} tbc rows!`)
+                }
+            }
+
+            {
+                const resultRows: any[] =
                     trf.db.exec({ sql: `SELECT tbc.* from tbc join ctx on tbc.id = ctx.tbc_id join reportitem on reportitem.ctx_id=ctx.id where reportitem.id =${selected.id}; `, returnValue: 'resultRows', rowMode: 'object' })
                 //console.log(`TrfPkgSummaryView.useEffect[selected] got ${resultRows.length} tbc rows`)
                 if (resultRows.length === 1) {
@@ -142,7 +206,6 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
                     console.warn(`TrfPkgSummaryView.useEffect[selected] got unexpected #${resultRows.length} tbc rows!`)
                 }
             }
-
             {
                 const resultRows: any[] =
                     trf.db.exec({ sql: `SELECT * from libraries; `, returnValue: 'resultRows', rowMode: 'object' })

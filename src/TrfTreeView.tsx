@@ -98,6 +98,7 @@ const idForItem = (item: TrfReportItem) => {
     switch (item.itemType) {
         case ItemType.Project: return 'Prj_' + item.id.toString()
         case ItemType.Package: return 'Pkg_' + item.id.toString()
+        case ItemType.Recordings: return 'Rec_' + item.id.toString()
     }
     return item.id.toString()
 }
@@ -107,6 +108,8 @@ const nodeIdToTypeAndId = (nodeId: string): [ItemType, number] => {
         return [ItemType.Project, Number(nodeId.slice(4,))]
     } else if (nodeId.startsWith('Pkg_')) {
         return [ItemType.Package, Number(nodeId.slice(4,))]
+    } if (nodeId.startsWith('Rec_')) {
+        return [ItemType.Recordings, Number(nodeId.slice(4,))]
     } else {
         return [ItemType.TestSteps, Number(nodeId)]
     }
@@ -157,7 +160,10 @@ export const TrfTreeView = (props: TrfTreeViewProps) => {
                     : nodeIds
                 if (nodeId !== undefined) {
                     const [itemType, id] = nodeIdToTypeAndId(nodeId)
-                    props.onSelect(itemType === ItemType.Project ? ViewType.PrjSummary : (itemType === ItemType.Package ? ViewType.PkgSummary : ViewType.TestSteps), id)
+                    props.onSelect(itemType === ItemType.Project ? ViewType.PrjSummary
+                        : (itemType === ItemType.Package ? ViewType.PkgSummary
+                            : (itemType === ItemType.Recordings ? ViewType.PkgRecordings
+                                : ViewType.TestSteps)), id)
                 } else {
                     props.onSelect(ViewType.None)
                 }

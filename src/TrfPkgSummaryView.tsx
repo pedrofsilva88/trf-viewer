@@ -1,6 +1,5 @@
 /**
  * todos:
- * [] add more tabs (test config, test bench config)
  */
 
 import { useMediaQuery } from 'usehooks-ts';

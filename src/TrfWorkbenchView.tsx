@@ -9,6 +9,7 @@ import { useLocalStorage } from 'usehooks-ts';
 import { TrfDetailView } from './TrfDetailView';
 import { TrfPkgSummaryView } from './TrfPkgSummaryView';
 import { TrfPrjSummaryView } from './TrfPrjSummaryView';
+import { TrfPkgRecordingsView } from './TrfPkgRecordingsView';
 
 export interface TrfReport {
     fileName: string,
@@ -20,10 +21,12 @@ export enum ItemType {
     Project,
     Package,
     TestSteps,
+    Recordings, // virtual item for Recordings, id points to the pkg/parent in the tree
 }
 
 export interface TrfReportItem {
     id: number,
+    parent: TrfReportItem | undefined, 
     itemType: ItemType, // only to identify the additionally created items for tree view
     icon?: TrfImageProps,
     srcType?: string,
@@ -41,12 +44,14 @@ export interface TrfReportItem {
     targetValue?: string,
     comment?: string,
     children: TrfReportItem[],
+    _internalData?: Record<string, any> // to store internal data e.g. within the tree. currently used for recordings
 }
 
 export enum ViewType {
     None,
     PrjSummary,
     PkgSummary,
+    PkgRecordings,
     TestSteps,
 }
 
@@ -89,7 +94,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
     }, [section1Width])*/
 
     useEffect(() => {
-        console.log(`TrfWorkbenchView useEffect[trf]...`)
+        console.time(`TrfWorkbenchView useEffect[trf]...`)
 
         // load all report items:
         console.time(`exec query for all reportitems`)
@@ -134,9 +139,12 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
             const src_category = row[idxSrcCategoryCol]
             const src_type = row[idxSrcTypeCol]
             const src_subtype = row[idxSrcSubtypeCol]
+            const parentId = row[idxParentIdCol]
+            const parentItem = parentId ? tmpReportitemMap.get(parentId) : undefined
 
             const tvi: TrfReportItem = {
                 id: row[idxIdCol],
+                parent: parentItem,
                 itemType: ItemType.TestSteps, // might be changed later below
                 icon: imageId ? { db: trf.db, id: Number(imageId) } : undefined,
                 srcType: src_type,
@@ -156,13 +164,11 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
                 children: []
             }
             tmpReportitemMap.set(tvi.id, tvi)
-            const parentId = row[idxParentIdCol]
             if (!parentId) {
                 tvi.itemType = ItemType.Project
                 roots.push(tvi)
             } else {
                 // we assume all parents are known already. (otherwise a 2nd iteration would be needed)
-                const parentItem = tmpReportitemMap.get(parentId)
                 if (parentItem) {
                     parentItem.children.push(tvi)
                 } else {
@@ -182,25 +188,68 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
                     if (last_package !== undefined) {
                         if (last_package.children.length === 0) {
                             last_package.children.push({
+                                parent: last_package,
                                 elementary_result: 0,
                                 itemType: ItemType.TestSteps,
                                 id: last_package.id, activity: '', name: 'Test case', label: 'Test case', result: last_package.result, children: []
                             })
                         }
-                        last_package.children[0].children.push({ ...tvi, children: [] })
+                        last_package.children[0].children.push({ ...tvi, children: [] }) // todo here with the orig parent?
                     } else {
                         console.warn(`TrfWorkbenchView useEffect[trf]... !last_package for ${tvi.id} ${src_type} ${src_subtype}`)
                     }
                 }
             }
         }
+        try {// add recordings: to the first level packages
+            const rrRecordings: any[] =
+                trf.db.exec({ sql: `SELECT * from r_reportitem_recording;`, returnValue: 'resultRows', rowMode: 'object' })
+            console.log(`TrfWorkbenchView useEffect[trf]... got ${rrRecordings.length} recordings`)
+            if (rrRecordings.length) {
+                for (const rrRecording of rrRecordings as { reportitem_id: number, recording_id: number }[]) {
+                    const item = tmpReportitemMap.get(rrRecording.reportitem_id)
+                    if (item) {
+                        // get the first level package (the last package in the parent chain)
+                        let lastPkg: TrfReportItem | undefined = undefined
+                        let curItem: TrfReportItem | undefined = item
+                        let i = 100 // avoid recursion the quick&dirty way
+                        do {
+                            if (curItem.srcType === 'PACKAGE') {
+                                lastPkg = curItem
+                            }
+                            curItem = curItem.parent
+                            i--
+                        } while (curItem && i > 0)
+                        // find last_pkg in packages:
+                        if (lastPkg) {
+                            const treePkg = packages.find((v) => v.id === lastPkg!.id)
+                            console.log(`first level package for #${item.id} item:`, lastPkg, treePkg)
+                            if (treePkg) {
+                                let recItem: TrfReportItem | undefined = treePkg.children.find(i => i.itemType === ItemType.Recordings);
+                                if (!recItem) {
+                                    recItem = { ...treePkg, itemType: ItemType.Recordings, name: 'Recordings', children: [], _internalData: { recordings: [rrRecording] } }
+                                    treePkg.children.push(recItem)
+                                } else {
+                                    recItem._internalData?.["recordings"].push(rrRecording)
+                                }
+                            }
+                        }
+                    } else {
+                        console.warn(`TrfWorkbenchView useEffect[trf]... no reportitem #${rrRecording.reportitem_id} found for:`, rrRecording)
+                    }
+                }
+            }
+        } catch (e) {
+            console.error(`TrfWorkbenchView useEffect[trf] adding recordings got error:${e}`)
+        }
+
         setReportItemMap(tmpReportitemMap)
         console.log(`TrfWorkbenchView useEffect[trf]... got ${roots.length} root items`)
         setRootReportItems(roots)
         console.log(`TrfWorkbenchView useEffect[trf]... got ${packages.length} package items`)
         const rootPackages = roots.length === 1 ? [{ ...roots[0], children: packages }] : packages
         setPackageItems(rootPackages)
-
+        console.timeEnd(`TrfWorkbenchView useEffect[trf]...`)
     }, [trf, setRootReportItems, setPackageItems, setReportItemMap])
 
     const treeSelectedItem = treeSelectedNodeId !== undefined ? reportItemMap.get(treeSelectedNodeId) : undefined
@@ -244,6 +293,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
                         </div>
                     }
                     {listViewType === ViewType.PkgSummary && <TrfPkgSummaryView items={rootReportItems} selected={treeSelectedItem ? treeSelectedItem : rootReportItems[0]} trf={props.trf} />}
+                    {listViewType === ViewType.PkgRecordings && <TrfPkgRecordingsView items={rootReportItems} selected={treeSelectedItem ? treeSelectedItem : rootReportItems[0]} trf={props.trf} pkgItems={packageItems} />}
                     {listViewType === ViewType.PrjSummary && <TrfPrjSummaryView items={rootReportItems} selected={treeSelectedItem ? treeSelectedItem : rootReportItems[0]} trf={props.trf} />}
                 </Section>
             </Container>

@@ -124,7 +124,7 @@ export const TrfPrjSummaryView = (props: TrfPrjSummaryViewProps) => {
             >
                 <div style={{ display: 'flex', flexFlow: 'column', height: '100%' }}>
                     <div style={{ flex: '0 1 auto' }}>
-                        <div style={{ width: '100%', textAlign: 'right', fontSize: "0.6rem" }}>{`${(trf.dbInfo.app_name || '') + ` (version: ${trf.dbInfo.app_version || ''})`}`}</div>
+                        <div style={{ width: '100%', textAlign: 'right', fontSize: "0.6rem" }}>{`${(trf.dbInfo.app_name || '') + `:${trf.dbInfo.app_version || ''}`}`}</div>
                         <div style={{ width: '100%', textAlign: 'center', fontSize: "1rem" }}>{`Summary: ${selected.name || selected.label}`}</div>
                         {selected.timestamp && <div style={{ width: '100%', textAlign: 'center', fontSize: "0.7rem" }}>{new Date(selected.timestamp * 1000).toString()}</div>}
                         <Grid container>

@@ -20,3 +20,22 @@
 .trfListView .rs-table-cell-content:has(span[result~="NONE"]) {
     background-color: gray;
 }
+@supports not selector(:has(a, b)) {
+
+    /* Fallback for when :has() is unsupported */
+    .trfListView span[result~="SUCCESS"] {
+        color: green;
+    }
+
+    .trfListView span[result~="FAILED"] {
+        color: red;
+    }
+
+    .trfListView span[result~="ERROR"] {
+        color: darkred;
+    }
+
+    .trfListView span[result~="NONE"] {
+        color: gray;
+    }
+}

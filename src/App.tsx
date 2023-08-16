@@ -1,3 +1,6 @@
+// the full screen editor alike layout is similar to https://jsfiddle.net/ysw37gmu/1/
+// minor details like overflow-y:hidden, ... are important!
+
 import { useState, useCallback, useEffect, useMemo } from 'react'
 
 import { Chart as ChartJS, ArcElement, BarController, Title, Tooltip, Legend, registerables } from 'chart.js'

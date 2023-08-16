@@ -1,5 +1,7 @@
 /**
  * todos:
+ * [] add recording_mapping item info
+ * [] add export/open if a zip file was provided where the file is contained
  */
 
 import { useMediaQuery } from 'usehooks-ts';
@@ -135,7 +137,6 @@ export const TrfPkgRecordingsView = (props: TrfPkgRecordingsViewProps) => {
 
     return <div className={`trfPkgRecordingsView${prefersDarkMode ? ' rs-theme-dark' : ''} `}>
         <div style={{ width: '100%', textAlign: 'center', fontSize: "1rem" }}>{`Recordings from ${selected.name || selected.label}`}</div>
-        {selected.timestamp && <div style={{ width: '100%', textAlign: 'center', fontSize: "0.7rem" }}>{new Date(selected.timestamp * 1000).toString()}</div>}
         {entityTables.length > 0 && <div style={{ padding: '0px 0px 48px 0px' }}>{tableFromTableEntity(entityTables[0], 'table_info')}</div>}
     </div >
 }

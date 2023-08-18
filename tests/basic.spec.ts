@@ -25,7 +25,7 @@ test('open trf file', async ({ page }) => {
   const inputFile = page.locator('input[type="file"]')
   await inputFile.waitFor({ state: 'hidden' })
 
-  await delay(150); // this is weird. otherwise there are tests without debugging or logging failing.
+  await delay(1500); // this is weird. otherwise there are tests without debugging or logging failing.
   // might be a race condition in the Dropzone...
 
   await page.setInputFiles('input[type="file"]', './basic_test.trf', { strict: true })

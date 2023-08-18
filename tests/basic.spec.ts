@@ -11,9 +11,13 @@ test('has title', async ({ page }) => {
 test('open trf file', async ({ page }) => {
   console.log(`cwd=${process.cwd()}`)
   page.on('console', async (msg) => {
-    const msgArgs = msg.args();
-    const logValues = await Promise.all(msgArgs.map(async arg => await arg.jsonValue()));
-    console.log(...logValues);
+    try {
+      const msgArgs = msg.args();
+      const logValues = await Promise.all(msgArgs.map(async arg => await arg.jsonValue()));
+      console.log(...logValues);
+    } catch (e) {
+      console.error(`page.on(console) got error:${e}`)
+    }
     // console.log(msg)
   })
 

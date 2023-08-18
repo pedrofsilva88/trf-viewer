@@ -132,7 +132,7 @@ export const TrfListView = (props: TrfListViewProps) => {
         [key: string]: any;
     }
 
-    return <div className={`trfListView ${prefersDarkMode ? 'rs-theme-dark' : ''}`}>
+    return <div data-testid='trfListView' className={`trfListView ${prefersDarkMode ? 'rs-theme-dark' : ''}`}>
         <Table
             isTree
             defaultExpandAllRows={false}

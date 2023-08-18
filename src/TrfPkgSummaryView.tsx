@@ -325,7 +325,7 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
         </CustomTabPanel>)
     }, [entityTables, visibleTab])
 
-    return <div className={`trfPkgSummaryView${prefersDarkMode ? ' rs-theme-dark' : ''} `}>
+    return <div data-testid='trfPkgSummaryView' className={`trfPkgSummaryView${prefersDarkMode ? ' rs-theme-dark' : ''} `}>
         <div style={{ width: '100%', textAlign: 'center', fontSize: "1rem" }}>{selected.name || selected.label}</div>
         {selected.timestamp && <div style={{ width: '100%', textAlign: 'center', fontSize: "0.7rem" }}>{new Date(selected.timestamp * 1000).toString()}</div>}
         {entityTables.length > 0 && <div style={{ padding: '0px 0px 48px 0px' }}>{tableFromTableEntity(entityTables[0], 'table_info')}</div>}

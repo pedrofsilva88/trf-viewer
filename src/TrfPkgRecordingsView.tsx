@@ -135,7 +135,7 @@ export const TrfPkgRecordingsView = (props: TrfPkgRecordingsViewProps) => {
         </div>
     }
 
-    return <div className={`trfPkgRecordingsView${prefersDarkMode ? ' rs-theme-dark' : ''} `}>
+    return <div data-testid='trfPkgRecordingsView' className={`trfPkgRecordingsView${prefersDarkMode ? ' rs-theme-dark' : ''} `}>
         <div style={{ width: '100%', textAlign: 'center', fontSize: "1rem" }}>{`Recordings from ${selected.name || selected.label}`}</div>
         {entityTables.length > 0 && <div style={{ padding: '0px 0px 48px 0px' }}>{tableFromTableEntity(entityTables[0], 'table_info')}</div>}
     </div >

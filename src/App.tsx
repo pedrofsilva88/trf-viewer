@@ -177,7 +177,7 @@ function App() {
     }
   }, [sqlite3, files, setLoading, setTestReports])
 
-  const Drop = styled('div')(({ theme }) => ({
+  const Drop = useMemo(() => styled('div')(({ theme }) => ({
     position: 'relative',
     borderRadius: theme.shape.borderRadius,
     backgroundColor: alpha(theme.palette.common.white, 0.15),
@@ -191,7 +191,7 @@ function App() {
       marginLeft: theme.spacing(3),
       width: 'auto',
     },
-  }));
+  })), [])
 
   const [compareMenuAnchorEl, setCompareMenuAnchorEl] = useState<null | HTMLElement>(null)
   const handleCompareMenu = (event: React.MouseEvent<HTMLElement>) => {

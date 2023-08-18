@@ -32,6 +32,24 @@ test('can select pkg test cases  with list view', async ({ page }) => {
     const locTreePkgSmokeTestExtendIcon = locTreeView.locator('css=div.MuiTreeItem-iconContainer').nth(1) // first one is the project one
     await locTreePkgSmokeTestExtendIcon.click()
     const locTreeTestCases = locTreeView.getByText('Test case')
+
     await locTreeTestCases.click()
-    await expect(page.getByTestId('trfListView')).toBeVisible()
+
+    const locListView = page.getByTestId('trfListView')
+    await expect(locListView).toBeVisible()
+    await expect(locListView.getByText("SmokeTest")).toBeVisible()
+    await expect(locListView.getByText("Set Vehicle to PAD")).toBeVisible()
+})
+
+test('can select recordings', async ({ page }) => {
+    const locTreeView = page.getByTestId('workbench.section.treeView')
+    const locTreePkgSmokeTestExtendIcon = locTreeView.locator('css=div.MuiTreeItem-iconContainer').nth(1) // first one is the project one
+    await locTreePkgSmokeTestExtendIcon.click()
+    const locTreeRecordings = locTreeView.getByText('Recordings')
+
+    await locTreeRecordings.click()
+
+    const locRecordingsView = page.getByTestId('trfPkgRecordingsView')
+    await expect(locRecordingsView).toBeVisible()
+    await expect(locRecordingsView.getByText("Recording.pcapng")).toBeVisible()
 })

@@ -1,4 +1,4 @@
-import { DetailedHTMLProps, HTMLAttributes, useEffect, useMemo, useState } from 'react'
+import { DetailedHTMLProps, HTMLAttributes, useCallback, useEffect, useMemo, useState } from 'react'
 import SvgIcon, { SvgIconProps } from '@mui/material/SvgIcon'
 
 import { Table } from 'rsuite'
@@ -66,26 +66,6 @@ const dateTimeOptions: Intl.DateTimeFormatOptions = {
 
 export const TrfListView = (props: TrfListViewProps) => {
 
-    /*
-    const renderTrfItemList = (item: TrfReportItem) => {
-        const srcIndexFrag = item.srcIndex && item.srcIndex.length ? item.srcIndex + ' - ' : ''
-
-        return (<TrfListItem result={item.result} key={item.id} nodeId={item.id.toString()}
-            label={<Box sx={{
-                display: 'flex',
-                alignItems: 'center',
-                pr: 0,
-            }}>
-                {item.icon && <Box component={TrfImage} db={item.icon.db} id={item.icon.id} color="inherit" sx={{ mr: 1 }} />}
-                <Typography variant="caption" color="inherit">
-                    {srcIndexFrag + item.label + (item.elementary_result === 1 && item.info ? ':' + item.info : '') + (item.targetValue ? ' vs. ' + item.targetValue : '') + ' id=' + item.id.toString()}
-                </Typography>
-            </Box>} // {item.label + ' id=' + item.id.toString()}
-        >
-            {item.children.map(renderTrfItemList)}
-        </TrfListItem>)
-    }*/
-
     // const dateTimeFormat = new Intl.DateTimeFormat("de-DE", dateTimeOptions)
     const dateTimeFormat = useMemo(() => {
         const timezone = (props.trf.dbInfo.timezone || 7200) // / 60 // 7200 = +2h / 60 = 120mins
@@ -98,11 +78,11 @@ export const TrfListView = (props: TrfListViewProps) => {
     const [listColumnWidths, setListColumnWidths] = useLocalStorage<ColumnWidths>("listColumnWidths", ColumnWidthsDefault)
     useEffect(() => setListColumnWidths(ColumnWidthsDefault), [])
 
-
     // for the details list view:
     const selectedItems: MyRowDataType[] = useMemo(() => { return props.selected ? [props.selected] : props.items }, [props.items, props.selected])
 
-    const [expanded, setExpanded] = useState<number[]>(() => selectedItems.map(item => item.id));
+    const [expanded, setExpanded] = useState<number[]>(() => selectedItems.map(item => item.id))
+    const [selectedRow, setSelectedRow] = useState<TrfReportItem | undefined>(props.selected ? props.selected : undefined)
 
     useEffect(() => {
         setExpanded(selectedItems.map(item => item.id))
@@ -119,6 +99,85 @@ export const TrfListView = (props: TrfListViewProps) => {
 
     };
 
+    const onKeyPress = useCallback((keyCode: string) => {
+        if (selectedRow) {
+            const curIsExpanded = expanded.includes(selectedRow.id)
+            switch (keyCode) {
+                case 'ArrowLeft':
+                    if (curIsExpanded) {
+                        onExpandChange(false, selectedRow)
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (!curIsExpanded && selectedRow.children.length > 0) {
+                        onExpandChange(true, selectedRow)
+                    }
+                    break;
+                case 'ArrowDown':
+                    {
+                        const selectNextSibling = (cur: TrfReportItem): boolean => {
+                            //const curIsExpanded = expanded.includes(cur.id)
+                            const par = cur.parent
+                            if (par) {
+                                const curChildIdx = par.children.findIndex((c) => c.id === cur.id)
+                                if (curChildIdx >= 0 && par.children.length > curChildIdx + 1) {
+                                    setSelectedRow(par.children[curChildIdx + 1])
+                                    return true
+                                } else {
+                                    if (par !== props.selected) {
+                                        return selectNextSibling(par)
+                                    }
+                                    return false
+                                }
+                            }
+                            return false
+                        }
+                        if (!curIsExpanded) {
+                            // select from the parent the next child
+                            selectNextSibling(selectedRow)
+                        } else {
+                            // select the first child
+                            const childs = selectedRow.children
+                            if (childs.length > 0) {
+                                setSelectedRow(selectedRow.children[0])
+                            }
+                        }
+                        // todo and scroll new into view
+                    }
+                    break;
+                case 'ArrowUp': {
+                    const getDeepestExpandedLastChild = (cur: TrfReportItem): TrfReportItem => {
+                        if (cur.children.length === 0) { return cur }
+                        const lastChild = cur.children[cur.children.length - 1]
+                        const isChildExpanded = expanded.includes(lastChild.id)
+                        return isChildExpanded ? getDeepestExpandedLastChild(lastChild) : lastChild
+                    }
+                    // if we're on the first one we cannot go any further (even if there is a parent)
+                    if (selectedRow !== props.selected) {
+                        const par = selectedRow.parent
+                        if (par) {
+                            const curChildIdx = par.children.findIndex((c) => c.id === selectedRow.id)
+                            if (curChildIdx > 0) {
+                                const sibling = par.children[curChildIdx - 1]
+                                const isSiblingExpanded = expanded.includes(sibling.id)
+                                if (isSiblingExpanded) {
+                                    setSelectedRow(getDeepestExpandedLastChild(sibling))
+                                } else {
+                                    setSelectedRow(sibling)
+                                }
+                            } else {
+                                setSelectedRow(par)
+                            }
+                        }
+                    }
+                    // todo and scroll new into view
+                }
+                    break;
+
+            }
+        }
+    }, [selectedRow, props.selected, expanded])
+
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
 
     // Table with
@@ -132,7 +191,18 @@ export const TrfListView = (props: TrfListViewProps) => {
         [key: string]: any;
     }
 
-    return <div data-testid='trfListView' className={`trfListView ${prefersDarkMode ? 'rs-theme-dark' : ''}`}>
+    return <div data-testid='trfListView' className={`trfListView ${prefersDarkMode ? 'rs-theme-dark' : ''}`}
+        tabIndex={-1}
+        onKeyDown={(ev) => {
+            switch (ev.code) {
+                case 'ArrowUp':
+                case 'ArrowDown':
+                case 'ArrowLeft':
+                case 'ArrowRight':
+                    onKeyPress(ev.code);
+                    break;
+            }
+        }}>
         <Table
             isTree
             defaultExpandAllRows={false}
@@ -140,6 +210,7 @@ export const TrfListView = (props: TrfListViewProps) => {
             cellBordered
             rowKey="id"
             rowHeight={24}
+            rowClassName={(rowData, _rowIdx) => `${rowData && rowData.id === selectedRow?.id ? ' selected' : ''}`}
             fillHeight
             // @ts-ignore
             data={selectedItems}
@@ -148,6 +219,7 @@ export const TrfListView = (props: TrfListViewProps) => {
             shouldUpdateScroll={false}
             onRowClick={(node) => {
                 props.onSelect(ViewType.TestSteps, node.id)
+                setSelectedRow(node as unknown as TrfReportItem)
             }}
             onExpandChange={onExpandChange}
             renderTreeToggle={(_icon, rowData) => {

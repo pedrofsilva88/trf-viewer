@@ -5,6 +5,13 @@
     font-size: 0.75rem;
 }
 
+.trfListView .rs-table-row.selected {
+    background-color: #81a5d1;
+}
+
+.trfListView .rs-table-row.selected .rs-table-cell {
+    background-color: #81a5d1;
+}
 .trfListView .rs-table-cell-content:has(span[result~="SUCCESS"]) {
     background-color: green;
 }

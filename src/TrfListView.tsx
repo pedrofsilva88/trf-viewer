@@ -1,4 +1,4 @@
-import { DetailedHTMLProps, HTMLAttributes, useCallback, useEffect, useMemo, useState } from 'react'
+import { DetailedHTMLProps, HTMLAttributes, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import SvgIcon, { SvgIconProps } from '@mui/material/SvgIcon'
 
 import { Table } from 'rsuite'
@@ -99,6 +99,25 @@ export const TrfListView = (props: TrfListViewProps) => {
 
     };
 
+    const timerRef = useRef<number>()
+    useEffect(() => {
+        return () => {
+            if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = undefined }
+        }
+    }, [props.selected])
+
+    const selectItem = useCallback((node: TrfReportItem, doDebounce = true) => {
+        if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = undefined }
+        if (doDebounce) {
+            timerRef.current = window.setTimeout(() => {
+                props.onSelect(ViewType.TestSteps, node.id)
+            }, 500)
+        } else {
+            props.onSelect(ViewType.TestSteps, node.id)
+        }
+        setSelectedRow(node as unknown as TrfReportItem)
+    }, [props.onSelect, timerRef])
+
     const onKeyPress = useCallback((keyCode: string) => {
         if (selectedRow) {
             const curIsExpanded = expanded.includes(selectedRow.id)
@@ -121,7 +140,7 @@ export const TrfListView = (props: TrfListViewProps) => {
                             if (par) {
                                 const curChildIdx = par.children.findIndex((c) => c.id === cur.id)
                                 if (curChildIdx >= 0 && par.children.length > curChildIdx + 1) {
-                                    setSelectedRow(par.children[curChildIdx + 1])
+                                    selectItem(par.children[curChildIdx + 1])
                                     return true
                                 } else {
                                     if (par !== props.selected) {
@@ -139,7 +158,7 @@ export const TrfListView = (props: TrfListViewProps) => {
                             // select the first child
                             const childs = selectedRow.children
                             if (childs.length > 0) {
-                                setSelectedRow(selectedRow.children[0])
+                                selectItem(selectedRow.children[0])
                             }
                         }
                         // todo and scroll new into view
@@ -161,12 +180,12 @@ export const TrfListView = (props: TrfListViewProps) => {
                                 const sibling = par.children[curChildIdx - 1]
                                 const isSiblingExpanded = expanded.includes(sibling.id)
                                 if (isSiblingExpanded) {
-                                    setSelectedRow(getDeepestExpandedLastChild(sibling))
+                                    selectItem(getDeepestExpandedLastChild(sibling))
                                 } else {
-                                    setSelectedRow(sibling)
+                                    selectItem(sibling)
                                 }
                             } else {
-                                setSelectedRow(par)
+                                selectItem(par)
                             }
                         }
                     }
@@ -176,7 +195,7 @@ export const TrfListView = (props: TrfListViewProps) => {
 
             }
         }
-    }, [selectedRow, props.selected, expanded])
+    }, [selectedRow, props.selected, expanded, selectItem])
 
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
 
@@ -218,8 +237,7 @@ export const TrfListView = (props: TrfListViewProps) => {
             /** shouldUpdateScroll: whether to update the scroll bar after data update **/
             shouldUpdateScroll={false}
             onRowClick={(node) => {
-                props.onSelect(ViewType.TestSteps, node.id)
-                setSelectedRow(node as unknown as TrfReportItem)
+                selectItem(node as unknown as TrfReportItem, false)
             }}
             onExpandChange={onExpandChange}
             renderTreeToggle={(_icon, rowData) => {

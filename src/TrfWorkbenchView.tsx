@@ -279,8 +279,8 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
                                     localStorage.setItem("bench.Section2Height", JSON.stringify(section2Height.current))
                                 }}>
                                     <TrfListView
-                                        onSelect={(viewType, nodeId) => {
-                                            console.log(`TrfWorkbenchView list section onSelect(${viewType}, ${nodeId})`)
+                                        onSelect={(_viewType, nodeId) => {
+                                            //console.log(`TrfWorkbenchView list section onSelect(${viewType}, ${nodeId})`)
                                             setListSelectedNodeId(nodeId)
                                         }}
                                         key={`listView_${rootReportItems.length}_${treeSelectedItem ? treeSelectedItem.id : 'none'}`} items={rootReportItems} selected={treeSelectedItem} trf={props.trf} />

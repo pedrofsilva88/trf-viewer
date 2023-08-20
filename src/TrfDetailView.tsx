@@ -31,13 +31,13 @@ export const TrfDetailView = (props: TrfDetailViewProps) => {
     const [entityTables, setEntityTables] = useState<TableEntity[]>([])
 
     useEffect(() => {
-        console.time(`TrfDetailView.useEffect[selected]...`)
+        //console.time(`TrfDetailView.useEffect[selected]...`)
         try {
             const resultRows: any[] =
                 trf.db.exec({ sql: `SELECT * from entity where reportitem_id=${selected.id} order by id;`, returnValue: 'resultRows', rowMode: 'object' })
             // todo check whether callback or rowMode array is faster
-            console.log(`TrfDetailView.useEffect[selected] got ${resultRows.length} entity rows for ${selected.id}`)
-            console.timeLog(`TrfDetailView.useEffect[selected]...`)
+            //console.log(`TrfDetailView.useEffect[selected] got ${resultRows.length} entity rows for ${selected.id}`)
+            //console.timeLog(`TrfDetailView.useEffect[selected]...`)
             const newEntityTables: TableEntity[] = []
             for (const entity of resultRows) {
                 if (entity.type === 'tableentity_cell') {
@@ -64,7 +64,7 @@ export const TrfDetailView = (props: TrfDetailViewProps) => {
             }
             setEntityTables(newEntityTables)
 
-            console.timeEnd(`TrfDetailView.useEffect[selected]...`)
+            //console.timeEnd(`TrfDetailView.useEffect[selected]...`)
         } catch (e) {
             console.error(`TrfDetailView.useEffect[selected] got error:${e}`)
             setEntityTables([])

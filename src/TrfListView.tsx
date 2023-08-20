@@ -7,6 +7,7 @@ import './TrfListView.css'
 import { TrfReport, TrfReportItem, ViewType } from './TrfWorkbenchView'
 import { TrfImage } from './TrfImage'
 import { useLocalStorage, useMediaQuery } from 'usehooks-ts'
+import { RowDataType, TableInstance } from 'rsuite/esm/Table'
 
 interface TrfListViewProps {
     trf: TrfReport,
@@ -66,6 +67,8 @@ const dateTimeOptions: Intl.DateTimeFormatOptions = {
 
 export const TrfListView = (props: TrfListViewProps) => {
 
+    const tableRef = useRef<TableInstance<RowDataType<never>, number>>(null)
+
     // const dateTimeFormat = new Intl.DateTimeFormat("de-DE", dateTimeOptions)
     const dateTimeFormat = useMemo(() => {
         const timezone = (props.trf.dbInfo.timezone || 7200) // / 60 // 7200 = +2h / 60 = 120mins
@@ -100,9 +103,11 @@ export const TrfListView = (props: TrfListViewProps) => {
     };
 
     const timerRef = useRef<number>()
+    const timer2Ref = useRef<number>()
     useEffect(() => {
         return () => {
             if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = undefined }
+            if (timer2Ref.current) { clearTimeout(timer2Ref.current); timer2Ref.current = undefined }
         }
     }, [props.selected])
 
@@ -116,7 +121,43 @@ export const TrfListView = (props: TrfListViewProps) => {
             props.onSelect(ViewType.TestSteps, node.id)
         }
         setSelectedRow(node as unknown as TrfReportItem)
-    }, [props.onSelect, timerRef])
+        // check whether the newly selected is visible:
+        // todo this uses internal assumptions from rsuite-table (like the body-row-wrapper and classnames...)
+        if (tableRef.current) {
+            if (timer2Ref.current) { clearTimeout(timer2Ref.current); timer2Ref.current = undefined }
+            timer2Ref.current = window.setTimeout(() => {
+                const table = tableRef.current
+                if (table) {
+                    const divBodyRowWrapper = table.root.querySelector(`.rs-table-body-row-wrapper`)
+                    const bWRect = divBodyRowWrapper?.getBoundingClientRect()
+                    //console.log(`got divBodyRowWrapper= ${bWRect?.top}-${bWRect?.bottom}`)
+
+                    const divNewSelected = table.root.querySelector(`div .rs-table-row.nodeId_${node.id}`)
+                    //const divNewSelected = table.root.querySelector(`div .rs-table-row[aria-rowindex="${node["index"]}"]`)
+                    // todo mapping to aria-rowindex ? would avoid the classname spamming...
+                    const bRect = divNewSelected?.getBoundingClientRect()
+                    //console.log(`got divNewSelected ${bRect?.top}-${bRect?.bottom}`, divNewSelected, bRect, table.root)
+
+                    if (bWRect && bRect) {
+                        const clippedTop = bRect.top < bWRect.top
+                        const clippedBottom = bRect.bottom > bWRect.bottom
+                        if (clippedTop || clippedBottom) {
+                            //console.log(`got divNewSelected is clipped ${clippedTop ? 'top' : 'bottom'}`)
+                            const idx = divNewSelected?.getAttribute('aria-rowindex')
+                            if (idx !== null) {
+                                // the new item is below the table so we want it to become visible at the end:
+                                // idx*height -> at the top (hidden by columns still)
+                                // + bwRect.height * 80% (for top: 30%)
+                                const rowHeight = divNewSelected?.clientHeight || 24
+                                const scrollTo = Math.floor(Number(idx) * Number(divNewSelected?.clientHeight) - (Math.floor(bWRect.height * (clippedBottom ? 0.8 : 0.3))))
+                                table.scrollTop(scrollTo >= rowHeight ? (scrollTo - (scrollTo % rowHeight)) : 0)
+                            }
+                        }
+                    }
+                }
+            }, 100)
+        }
+    }, [props.onSelect, timerRef, timer2Ref, tableRef])
 
     const onKeyPress = useCallback((keyCode: string) => {
         if (selectedRow) {
@@ -223,13 +264,14 @@ export const TrfListView = (props: TrfListViewProps) => {
             }
         }}>
         <Table
+            ref={tableRef}
             isTree
             defaultExpandAllRows={false}
             bordered
             cellBordered
             rowKey="id"
             rowHeight={24}
-            rowClassName={(rowData, _rowIdx) => `${rowData && rowData.id === selectedRow?.id ? ' selected' : ''}`}
+            rowClassName={(rowData, _rowIdx) => `${rowData && rowData.id === selectedRow?.id ? `selected nodeId_${rowData?.id}` : `nodeId_${rowData?.id}`}`}
             fillHeight
             // @ts-ignore
             data={selectedItems}

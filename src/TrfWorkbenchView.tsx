@@ -100,7 +100,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
         console.time(`exec query for all reportitems`)
         const columnNames: string[] = []
         const resultRows: any[] =
-            trf.db.exec({ sql: `SELECT id, parent_id, src_category, src_type, src_subtype, src_index, activity, name, label, duration, timestamp, timestamp_relative, result, original_result, elementary_result, image_id, info, targetvalue, comment from reportitem join reportitem_data on reportitem_data.reportitem_id = reportitem.id left join reportitem_image on reportitem_image.key = reportitem_data.reportitem_image_key;`, returnValue: 'resultRows', rowMode: 'array', columnNames: columnNames })
+            trf.db.exec({ sql: `SELECT id, parent_id, src_category, src_type, src_subtype, src_index, exec_level, activity, name, label, duration, timestamp, timestamp_relative, result, original_result, elementary_result, image_id, info, targetvalue, comment from reportitem join reportitem_data on reportitem_data.reportitem_id = reportitem.id left join reportitem_image on reportitem_image.key = reportitem_data.reportitem_image_key;`, returnValue: 'resultRows', rowMode: 'array', columnNames: columnNames })
         // todo check whether callback or rowMode array is faster
         console.timeEnd(`exec query for all reportitems`)
         console.log(`TrfWorkbenchView useEffect[trf]... got ${resultRows.length} resultRows`)
@@ -111,7 +111,8 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
         const roots: TrfReportItem[] = [] // all without parent_id
         const idxIdCol = columnNames.findIndex((colName) => colName === 'id')
         const idxSrcIndexCol = columnNames.findIndex((colName) => colName === 'src_index')
-        const idxSrcCategoryCol = columnNames.findIndex((colName) => colName === 'src_category')
+        //const idxSrcCategoryCol = columnNames.findIndex((colName) => colName === 'src_category')
+        const idxExecLevelCol = columnNames.findIndex((colName) => colName === 'exec_level')
         const idxActivityCol = columnNames.findIndex((colName) => colName === 'activity')
         const idxNameCol = columnNames.findIndex((colName) => colName === 'name')
         const idxLabelCol = columnNames.findIndex((colName) => colName === 'label')
@@ -136,7 +137,8 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
             const srcIndex = row[idxSrcIndexCol] as string
             const imageId = row[idxImageIdCol] as string
             const targetValue = row[idxTargetValueCol]
-            const src_category = row[idxSrcCategoryCol]
+            const exec_level = row[idxExecLevelCol]
+            //const src_category = row[idxSrcCategoryCol]
             const src_type = row[idxSrcTypeCol]
             const src_subtype = row[idxSrcSubtypeCol]
             const parentId = row[idxParentIdCol]
@@ -179,7 +181,8 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
             // we assume they are sorted...
             // todo add roots properly. for now we assume there is just one!
             if (src_type === 'PACKAGE') {
-                if (!src_subtype && src_category === 2) {
+                if (exec_level === 0) {
+                //if (!src_subtype && src_category === 2) {
                     last_package = {
                         ...tvi, itemType: ItemType.Package, children: []
                     }
@@ -223,7 +226,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
                         // find last_pkg in packages:
                         if (lastPkg) {
                             const treePkg = packages.find((v) => v.id === lastPkg!.id)
-                            console.log(`first level package for #${item.id} item:`, lastPkg, treePkg)
+                            // console.log(`first level package for #${item.id} item:`, lastPkg, treePkg)
                             if (treePkg) {
                                 let recItem: TrfReportItem | undefined = treePkg.children.find(i => i.itemType === ItemType.Recordings);
                                 if (!recItem) {

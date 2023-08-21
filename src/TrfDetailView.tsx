@@ -31,6 +31,7 @@ export const TrfDetailView = (props: TrfDetailViewProps) => {
     const [entityTables, setEntityTables] = useState<TableEntity[]>([])
 
     useEffect(() => {
+        console.log(`TrfDetailView.useEffect[selected] id=${selected.id}...`)//, selected)
         //console.time(`TrfDetailView.useEffect[selected]...`)
         try {
             const resultRows: any[] =

@@ -76,23 +76,6 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
     const section1Width = useRef<number>(lsSection1Width)
     const section2Height = useRef<number>(lsSection2Height)
 
-    /* seems like localStorage.setItem is fast enough...
-    useEffect(() => {
-        const timerId = setInterval(() => {
-            //console.log(`TrfWorkbenchView timer checking section1Width=${section1Width.current}`)
-            const persistedSection1Width = JSON.parse(localStorage.getItem("bench.Section1Width"))
-            if (section1Width.current !== persistedSection1Width) {
-                console.log(`TrfWorkbenchView storing new section1Width=${section1Width.current}`)
-                localStorage.setItem("bench.Section1Width", JSON.stringify(section1Width.current))
-            }
-        }, 5000)
-
-        return () => {
-            clearInterval(timerId)
-            console.log(`TrfWorkbenchView useEffect[section1Width] unmount`)
-        }
-    }, [section1Width])*/
-
     useEffect(() => {
         console.time(`TrfWorkbenchView useEffect[trf]...`)
 

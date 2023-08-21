@@ -123,25 +123,28 @@ const nodeIdToTypeAndId = (nodeId: string): [ItemType, number] => {
 export const TrfTreeView = (props: TrfTreeViewProps) => {
     const { packageItems } = props
 
-    const renderTrfTreeItem = (item: TrfReportItem) => {
-        const srcIndexFrag = item.srcIndex && item.srcIndex.length ? item.srcIndex + ' - ' : ''
-        const nodeId = idForItem(item)
+    const renderedItems = useMemo(() => {
+        const renderTrfTreeItem = (item: TrfReportItem) => {
+            const srcIndexFrag = item.srcIndex && item.srcIndex.length ? item.srcIndex + ' - ' : ''
+            const nodeId = idForItem(item)
 
-        return (<TrfTreeItem result={item.result} key={nodeId} nodeId={nodeId}
-            label={<Box sx={{
-                display: 'flex',
-                alignItems: 'center',
-                pr: 0,
-            }}>
-                {item.icon && <Box component={TrfImage} db={item.icon.db} id={item.icon.id} color="inherit" sx={{ mr: 1 }} />}
-                <Typography variant="caption" color="inherit">
-                    {srcIndexFrag + (item.name || item.label) /* + ' id=' + nodeId*/}
-                </Typography>
-            </Box>} // {item.label + ' id=' + item.id.toString()}
-        >
-            {item.children.map(renderTrfTreeItem)}
-        </TrfTreeItem>)
-    }
+            return (<TrfTreeItem result={item.result} key={nodeId} nodeId={nodeId}
+                label={<Box sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    pr: 0,
+                }}>
+                    {item.icon && <Box component={TrfImage} db={item.icon.db} id={item.icon.id} color="inherit" sx={{ mr: 1 }} />}
+                    <Typography variant="caption" color="inherit">
+                        {srcIndexFrag + (item.name || item.label) /* + ' id=' + nodeId*/}
+                    </Typography>
+                </Box>} // {item.label + ' id=' + item.id.toString()}
+            >
+                {item.children.map(renderTrfTreeItem)}
+            </TrfTreeItem>)
+        }
+        return packageItems.map(renderTrfTreeItem)
+    }, [packageItems])
 
     const defaultExpanded = useMemo(() => [idForItem(packageItems[0])], [packageItems])
 
@@ -169,7 +172,7 @@ export const TrfTreeView = (props: TrfTreeViewProps) => {
                 }
             }}
         >
-            {packageItems.map(renderTrfTreeItem)}
+            {renderedItems}
         </TreeView>
     </div>
 }

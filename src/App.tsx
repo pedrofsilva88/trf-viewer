@@ -221,9 +221,9 @@ function App() {
       <ConfirmProvider >
             <Box sx={{ flexGrow: 0 }}>
           <AppBar position="static" color='primary'>
-            <Toolbar>
+                <Toolbar variant='dense'>
               <IconButton
-                size="large"
+                    size="small"
                 edge="start"
                 color="inherit"
                 aria-label="open drawer"
@@ -240,7 +240,7 @@ function App() {
                     <section>
                       <div {...getRootProps({ className: 'dropZone' })}>
                         {false && <IconButton
-                          size="large"
+                              size="small"
                           edge="start"
                           color="inherit"
                           aria-label="add files"
@@ -255,7 +255,7 @@ function App() {
                   )}
                 </Dropzone>
               </Drop>
-              <IconButton aria-label='clear reports' size='large' color='inherit'
+                  <IconButton aria-label='clear reports' size='small' color='inherit'
                   disabled={!(files.length > 0 || testReports.length > 0)}
                   onClick={() => { setFiles([]); setTestReports([]); /*setReferenceIdToCompare(0)*/ }}>
                 <MuiTooltip title="Clear reports">
@@ -263,7 +263,7 @@ function App() {
                 </MuiTooltip>
               </IconButton>
               <div>
-                <IconButton size="large" aria-controls='menu-compare' aria-haspopup='true' onClick={handleCompareMenu} color='inherit'>
+                    <IconButton size="small" aria-controls='menu-compare' aria-haspopup='true' onClick={handleCompareMenu} color='inherit'>
                   <MuiTooltip title="Compare report">
                     <DifferenceIcon />
                   </MuiTooltip>
@@ -284,7 +284,7 @@ function App() {
                 </Menu>
               </div>
               <div>
-                <IconButton disabled={true} size='large' color='inherit'>
+                    <IconButton disabled={true} size='small' color='inherit'>
                   <MuiTooltip title="Filter test cases...">
                     <FilterAltIcon />
                   </MuiTooltip>

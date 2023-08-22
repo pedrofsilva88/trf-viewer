@@ -10,9 +10,10 @@ import { TrfDetailView } from './TrfDetailView';
 import { TrfPkgSummaryView } from './TrfPkgSummaryView';
 import { TrfPrjSummaryView } from './TrfPrjSummaryView';
 import { TrfPkgRecordingsView } from './TrfPkgRecordingsView';
+import { FileData } from './utils';
 
 export interface TrfReport {
-    fileName: string,
+    fileData: FileData,
     db: DB,
     dbInfo: any,
 }
@@ -285,5 +286,5 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
             </Container>
         </div >
     } else
-        return <div>{`reports ${props.trf.fileName} #${rootReportItems.length} ${JSON.stringify(props.trf.dbInfo)}`}</div>
+        return <div>{`reports ${props.trf.fileData.file.name} #${rootReportItems.length} ${JSON.stringify(props.trf.dbInfo)}`}</div>
 }

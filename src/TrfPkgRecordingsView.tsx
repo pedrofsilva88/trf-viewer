@@ -15,6 +15,8 @@ import TableHead from '@mui/material/TableHead';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
+import Button from '@mui/material/Button';
+import Link from '@mui/material/Link';
 
 interface TrfPkgRecordingsViewProps {
     trf: TrfReport,
@@ -26,6 +28,8 @@ interface TrfPkgRecordingsViewProps {
 interface TableColumn {
     key: string,
     label?: string
+    downloadable?: (label: string) => boolean,
+    download?: (label: string) => void,
 }
 
 interface TableEntity {
@@ -74,7 +78,52 @@ export const TrfPkgRecordingsView = (props: TrfPkgRecordingsViewProps) => {
                         { key: 'groupname', label: 'group name' },
                         { key: 'name', label: 'name' },
                         { key: 'type', label: 'type' },
-                        { key: 'path', label: 'path' },
+                        {
+                            key: 'path', label: 'path', downloadable: (label: string) => {
+                                if (trf.fileData.deferredZipFile) {
+                                    const lastPathDelimiter = trf.fileData.file.name.lastIndexOf('/')
+                                    const basePath = lastPathDelimiter > 0 ? trf.fileData.file.name.slice(0, lastPathDelimiter + 1) : ''
+                                    const recordingPath = basePath + (label as string).replaceAll('\\', '/')
+                                    if (trf.fileData.deferredZipFile.includes(recordingPath)) {
+                                        console.log(`TrfPkgRecordingsView got deferred file:'${recordingPath}' for '${trf.fileData.file.name}'`)
+                                        return true
+                                    } else {
+                                        console.log(`TrfPkgRecordingsView got no deferred file: for '${recordingPath}' from '${trf.fileData.file.name}'`)
+                                    }
+                                }
+                                return false
+                            },
+                            download: async (label: string) => {
+                                console.log(`download(${label})...`)
+                                const lastPathDelimiter = trf.fileData.file.name.lastIndexOf('/')
+                                const basePath = lastPathDelimiter > 0 ? trf.fileData.file.name.slice(0, lastPathDelimiter + 1) : ''
+                                const recordingPath = basePath + (label as string).replaceAll('\\', '/')
+                                const files = await trf.fileData.deferredZipFile?.extract([recordingPath])
+                                if (files && files.length > 0) {
+                                    for (const file of files) {
+                                        const url = window.URL.createObjectURL(
+                                            file,
+                                        );
+                                        const link = document.createElement('a')
+                                        link.href = url
+                                        link.setAttribute(
+                                            'download',
+                                            recordingPath,
+                                        )
+
+                                        // Append to html link element page
+                                        document.body.appendChild(link)
+
+                                        // Start download
+                                        link.click()
+
+                                        // Clean up and remove the link
+                                        link.parentNode?.removeChild(link)
+                                        window.URL.revokeObjectURL(url)
+                                    }
+                                }
+                            }
+                        },
                         { key: 'signalgroup_name', label: 'signal group name' },
                         { key: 'signalgroup_description', label: 'signal group description' },
                     ],
@@ -126,7 +175,7 @@ export const TrfPkgRecordingsView = (props: TrfPkgRecordingsViewProps) => {
                             >
                                 {et.columns.map((col, idx) => idx === 0 ? <TableCell key={col.key} component="th" scope="row">
                                     {row[col.key] || ''}
-                                </TableCell> : <TableCell key={col.key}>{row[col.key] || ''}</TableCell>)}
+                                </TableCell> : <TableCell key={col.key}>{col.downloadable && col.downloadable(row[col.key]) ? <Button size="small" component={Link} onClick={() => { if (col.download) { col.download(row[col.key]) } }}>{row[col.key] || ''}</Button> : (row[col.key] || '')}</TableCell>)}
                             </TableRow>
                         ))}
                     </TableBody>

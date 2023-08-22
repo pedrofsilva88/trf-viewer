@@ -19,7 +19,7 @@ import { SnackbarProvider, enqueueSnackbar } from 'notistack'
 import './App.css'
 import Dropzone, { FileRejection } from 'react-dropzone';
 import AdmZip from 'adm-zip';
-import { AppBar, Box, CssBaseline, IconButton, Menu, Toolbar, Tooltip as MuiTooltip, Typography, alpha, styled } from '@mui/material';
+import { AppBar, Box, CssBaseline, IconButton, Menu, Toolbar, Tooltip as MuiTooltip, Typography, alpha, styled, Divider } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import AddIcon from '@mui/icons-material/Add';
 import DifferenceIcon from '@mui/icons-material/Difference';
@@ -29,6 +29,7 @@ import { DB, Sqlite3 } from '@sqlite.org/sqlite-wasm';
 
 import { Sqlite3Context, useSqliteInitEffect } from './sqlite3';
 import { TrfWorkbenchView, TrfReport } from './TrfWorkbenchView';
+import { DeferredZipFile, FileData } from './utils';
 
 // supported (as known) db_version:
 const DB_VERSION_MIN = 64
@@ -38,8 +39,8 @@ const isSameFile = (a: File, b: File): boolean => {
   return a.name === b.name && a.type === b.type && a.lastModified === b.lastModified;
 }
 
-const includesFile = (a: File[], b: File): boolean => {
-  return a.find(f => isSameFile(f, b)) !== undefined
+const includesFile = (a: FileData[], b: FileData): boolean => {
+  return a.find(f => isSameFile(f.file, b.file)) !== undefined
 }
 
 /*
@@ -62,7 +63,7 @@ const useLocalStorage = <T,>(storageKey: string, initialState: T): [T, React.Dis
 
 function App() {
   // const [referenceIdToCompare, setReferenceIdToCompare] = useLocalStorage<number>('referenceIdToCompare', 0) // the db.Reference.id to compare with (seems like 0 is not used...)
-  const [files, setFiles] = useState<File[]>([])
+  const [files, setFiles] = useState<FileData[]>([])
   const [testReports, setTestReports] = useState<TrfReport[]>([])
   //  const [showDetailTCs, setShowDetailTCs] = useState<AtxTestCase[]>([])
   const [loading, setLoading] = useState<boolean>(false)
@@ -73,7 +74,7 @@ function App() {
     try {
       //const length = event.dataTransfer.files.length;
       console.log(`onDrop acceptedFile length=${acceptedFiles.length} rejectedFiles: ${rejectedFiles.length}`);
-      const posTrfFiles = acceptedFiles.filter((f) => { const lowName = f.name.toLowerCase(); return lowName.endsWith('.trf') })
+      const posTrfFiles: FileData[] = acceptedFiles.filter((f) => { const lowName = f.name.toLowerCase(); return lowName.endsWith('.trf') }).map(f => { return { file: f } })
       // we do only check for zip files if no xml file was dropped already
       const zipFiles = posTrfFiles.length === 0 ? acceptedFiles.filter((f) => { const lowName = f.name.toLowerCase(); return lowName.endsWith('.zip') || lowName.endsWith('.7z') }) : []
       for (const file of zipFiles) {
@@ -88,9 +89,12 @@ function App() {
         })
         console.log(` dropped zip file:${file.name} has ${trfFilesFromZip.length} trf entries`)
         // unzip those:
-        const trfFilesFromZipAsFiles = trfFilesFromZip.map((f) => {
+        const trfFilesFromZipAsFiles: FileData[] = trfFilesFromZip.map((f) => {
           const bits = f.getData()
-          return new File([bits], f.entryName, { type: "text/xml", lastModified: f.header.time.valueOf() }) // todo text/xml
+          return {
+            file: new File([bits], f.entryName, { type: "text/xml", lastModified: f.header.time.valueOf() }),
+            deferredZipFile: new DeferredZipFile(file, zip)
+          } // todo text/xml
         })
         console.log(` dropped zip file:${file.name} extracted ${trfFilesFromZipAsFiles.length} trf entries`, trfFilesFromZipAsFiles)
         setFiles(d => {
@@ -120,14 +124,14 @@ function App() {
   // load/open the files as sqlite databases
   useEffect(() => {
     if (sqlite3 !== undefined) {
-      console.log(`App.useEffect[files]... files=${files.map((f => f.name)).join(',')}`)
-      Promise.all(files.map(file => {
-        const arrayBuffer = file.arrayBuffer()
-        return arrayBuffer.then(a => [a, file.name] as [ArrayBuffer, string])
+      console.log(`App.useEffect[files]... files=${files.map((f => f.file.name)).join(',')}`)
+      Promise.all(files.map(fileData => {
+        const arrayBuffer = fileData.file.arrayBuffer()
+        return arrayBuffer.then(a => [a, fileData] as [ArrayBuffer, FileData])
       }))
         .then(arrayBuffers => {
-          const uint8Arrays = arrayBuffers.map(([arrayBuffer, fileName]) => [new Uint8Array(arrayBuffer), fileName] as [Uint8Array, string])
-          const dbs = uint8Arrays.map(([bytes, fileName]) => {
+          const uint8Arrays = arrayBuffers.map(([arrayBuffer, fileData]) => [new Uint8Array(arrayBuffer), fileData] as [Uint8Array, FileData])
+          const dbs = uint8Arrays.map(([bytes, fileData]) => {
             const p = sqlite3.wasm.allocFromTypedArray(bytes);
             const db = new sqlite3.oo1.DB();
             let rc = sqlite3.capi.sqlite3_deserialize(
@@ -139,10 +143,10 @@ function App() {
               0
             );
             console.log(`sqlite3_deserialize got rc=${rc}`)
-            return [db, fileName] as [DB, string] // todo only if rc===0?
+            return [db, fileData] as [DB, FileData] // todo only if rc===0?
           })
-          const reports: (TrfReport | undefined)[] = dbs.map(([db, fileName]) => {
-            console.log(`db(${fileName}).dbName=`, db.dbName())
+          const reports: (TrfReport | undefined)[] = dbs.map(([db, fileData]) => {
+            console.log(`db(${fileData}).dbName=`, db.dbName())
             const info: any[] = db.exec({ sql: "SELECT * from info limit 1; ", returnValue: "resultRows", rowMode: "object" })
             if (info.length > 0) {
               console.log(`db.info[0]=`, info[0])
@@ -154,7 +158,7 @@ function App() {
                   { preventDuplicate: true, variant: 'warning', autoHideDuration: 9000 })
               }
               return {
-                fileName: fileName,
+                fileData: fileData,
                 db: db,
                 dbInfo: info[0]
               }
@@ -172,7 +176,7 @@ function App() {
         })
     } else {
       if (files.length > 0) {
-        console.warn(`App.useEffect[files] got no sqlite3!  files=${files.map((f => f.name)).join(',')}`)
+        console.warn(`App.useEffect[files] got no sqlite3!  files=${files.map((f => f.file.name)).join(',')}`)
       }
     }
   }, [sqlite3, files, setLoading, setTestReports])
@@ -292,7 +296,13 @@ function App() {
         {loading && <>
           <div id="progress" className='indeterminateProgressBar'><div className='indeterminateProgressBarProgress' /></div></>}
             <div style={{ display: 'contents' }}>
-              {testReports.length === 0 /*&& compareView === undefined */ && <div style={{ flex: '1 1 auto' }} > <p>Open a trf test report file...</p></div>}
+              {testReports.length === 0 /*&& compareView === undefined */ && <div style={{ flex: '1 1 auto' }} >
+                <p>Open a trf test report file...</p>
+                <Divider />
+                <Typography variant="body1" sx={{ border: '2px dotted green', padding: '6px', margin: '6px', width: '50%' }}>
+                  Hint: Use/drag'n'drop a zip file including the .trf and all recordings. That allows you to download the recordings automatically on the Recordings page.
+                </Typography>
+              </div>}
             {testReports.length > 0 && testReports.map((report, idx) => <TrfWorkbenchView key={`rep_${idx}`} trf={report} />)}
 
               <div className='gitSha' style={{ flex: '0 1 auto' }}>build from <a href="https://github.com/mbehr1/trf-viewer" target="_blank">github/mbehr1/trf-viewer</a> commit #{__COMMIT_HASH__}</div>

@@ -1,4 +1,6 @@
 import { DB } from "@sqlite.org/sqlite-wasm"
+import AdmZip from "adm-zip"
+import { Buffer } from 'node:buffer'
 
 interface TableColumn {
     key: string,
@@ -73,5 +75,54 @@ export const timeFormat = (durationSecsNrStr: number | string, outputMs: boolean
         return `${hours}:${('0' + minutes).slice(-2)}:${('0' + seconds).slice(-2)}.${ms.toFixed(3).slice(2)}`;
     } else {
         return `${hours}:${('0' + minutes).slice(-2)}:${('0' + seconds).slice(-2)}`
+    }
+}
+
+export interface FileData {
+    //entryName: string, // or use file.name?
+    file: File,
+    deferredZipFile?: DeferredZipFile
+}
+
+/**
+ * class that helps keeping zip files opened where we later might want to extract a single file from
+ * (e.g. recordings)
+ * So the class keeps the orig File and a list of the entries (file names) inside the zip
+ */
+export class DeferredZipFile {
+    private entryNames: string[]
+
+    constructor(private rawZipFile: File, openedZip: AdmZip) {
+        this.entryNames = openedZip.getEntries().filter(e => !e.isDirectory).map(e => e.entryName)
+    }
+
+    /**
+     * returns whether an entry is available.
+     * Take care: case sensitive!
+     * @param entryName 
+     * @returns 
+     */
+    public includes(entryName: string): boolean {
+        return this.entryNames.includes(entryName)
+    }
+
+    /**
+     * extract a set of entries.
+     * 
+     * @remark This is a really slow operation as it opens the zip file
+     * extracts the files and closes the zip file.
+     * @param entries - array with entryNames to extract
+     * @returns 
+     */
+    public async extract(entries: string[]) {
+        // open the zip file now:
+        const zipFileBuf = await this.rawZipFile.arrayBuffer()
+        const zip = new AdmZip(Buffer.from(zipFileBuf), { noSort: true })
+        const filesFromZip = zip.getEntries().filter((e) => entries.includes(e.entryName))
+        const unzippedFromZipAsFiles = filesFromZip.map((f) => {
+            const bits = f.getData()
+            return new File([bits], f.entryName, { type: "text/xml", lastModified: f.header.time.valueOf() }) // todo text/xml
+        })
+        return unzippedFromZipAsFiles
     }
 }

@@ -1,7 +1,7 @@
 // the full screen editor alike layout is similar to https://jsfiddle.net/ysw37gmu/1/
 // minor details like overflow-y:hidden, ... are important!
 
-import { useState, useCallback, useEffect, useMemo } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { Chart as ChartJS, ArcElement, BarController, Title, Tooltip, Legend, registerables } from 'chart.js'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
@@ -15,6 +15,9 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { ConfirmProvider } from "material-ui-confirm";
 import { SnackbarProvider, enqueueSnackbar } from 'notistack'
+
+import ResponsiveNav from '@rsuite/responsive-nav';
+import MoreIcon from '@rsuite/icons/More';
 
 import './App.css'
 import Dropzone, { FileRejection } from 'react-dropzone';
@@ -123,6 +126,7 @@ function App() {
 
   // load/open the files as sqlite databases
   useEffect(() => {
+    // console.log(`App.useEffect[sqlite3, files, setLoading, setTestReports]...`)
     if (sqlite3 !== undefined) {
       console.log(`App.useEffect[files]... files=${files.map((f => f.file.name)).join(',')}`)
       Promise.all(files.map(fileData => {
@@ -212,6 +216,31 @@ function App() {
       mode: prefersDarkMode ? 'dark' : 'light'
     },
   }), [prefersDarkMode])
+
+  // we cache all TrfWorkbenches here...
+  const renderedReports = useRef<Map<TrfReport, JSX.Element>>(new Map())
+
+  const [activeTrf, setActiveTrf] = useState<string | undefined>('')
+  useEffect(() => {
+    console.log(`App.useEffect[testReports]...`)
+    if (!activeTrf && testReports.length > 0) {
+      setActiveTrf(testReports[0].fileData.file.name)
+    }
+  }, [testReports])
+
+  const getRenderedReport = (trf: TrfReport, createIfEmpty: boolean): JSX.Element => {
+    const reportMap = renderedReports.current;
+    let jsx = reportMap.get(trf)
+    if (jsx) { return jsx } else {
+      if (createIfEmpty) {
+        jsx = <TrfWorkbenchView key={`rep_${trf.fileData.file.name}`} trf={trf} />
+        reportMap.set(trf, jsx)
+        return jsx
+      } else {
+        return <></>
+      }
+    }
+  }
 
   return (
     <SnackbarProvider >
@@ -303,8 +332,28 @@ function App() {
                   Hint: Use/drag'n'drop a zip file including the .trf and all recordings. That allows you to download the recordings automatically on the Recordings page.
                 </Typography>
               </div>}
-            {testReports.length > 0 && testReports.map((report, idx) => <TrfWorkbenchView key={`rep_${idx}`} trf={report} />)}
-
+              {testReports.length === 1 && testReports.map((report, _idx) => getRenderedReport(report, true))}
+              {testReports.length > 1 && (<div style={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto', overflowY: 'hidden' }} >
+                <div style={{ width: '100%', textAlign: 'left' }}>
+                  <ResponsiveNav removable appearance="tabs" moreText={<MoreIcon />}
+                    moreProps={{ noCaret: true }}
+                    activeKey={activeTrf}
+                    onSelect={(active) => setActiveTrf(active as string | undefined)}
+                    onItemRemove={eventKey => {
+                      console.log(`ResponsiveNav.onItemRemove(${eventKey})`)
+                      const newReports = [...testReports]
+                      newReports.splice(newReports.findIndex(e => e.fileData.file.name === eventKey), 1)
+                      setTestReports(newReports)
+                      setActiveTrf(newReports.length > 0 ? newReports[0].fileData.file.name : undefined)
+                    }}>
+                    {testReports.map((report, _idx) => <ResponsiveNav.Item key={report.fileData.file.name} eventKey={report.fileData.file.name}>
+                      {report.fileData.file.name}
+                    </ResponsiveNav.Item>)}
+                  </ResponsiveNav>
+                </div>
+                {testReports.map((report, _idx) => <div style={{ flexDirection: 'column', flex: report.fileData.file.name === activeTrf ? '1 1 auto' : '0 0 0px', overflowY: 'hidden', transform: report.fileData.file.name === activeTrf ? '' : 'scale(0)', display: 'flex' }}>{getRenderedReport(report, report.fileData.file.name === activeTrf)}</div>)}
+              </div>)
+              }
               <div className='gitSha' style={{ flex: '0 1 auto' }}>build from <a href="https://github.com/mbehr1/trf-viewer" target="_blank">github/mbehr1/trf-viewer</a> commit #{__COMMIT_HASH__}</div>
             </div>
       </ConfirmProvider>

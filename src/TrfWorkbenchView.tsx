@@ -76,6 +76,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
     // and have a timer that checks and stores in localStorage
     const section1Width = useRef<number>(lsSection1Width)
     const section2Height = useRef<number>(lsSection2Height)
+    //console.log(`TrfWorkbenchView bench.Section1Width=${section1Width.current}`)
 
     useEffect(() => {
         console.time(`TrfWorkbenchView useEffect[trf]...`)
@@ -245,7 +246,9 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
     if (rootReportItems.length) {
         return <div className='trfWorkbenchView' style={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto', overflowY: 'hidden' }}>
             {false && [...Array(43).keys()].map(i => <TrfImage db={props.trf.db} id={1 + i} />)}
-            <Container style={{ flex: '1 1 auto', overflowY: 'hidden' }}>
+            <Container beforeApplyResizer={(_resizer) => {
+                console.log(`beforeApplyResizer(${props.trf.fileData.file.name})`)
+            }} key={props.trf.fileData.file.name} style={{ flex: '1 1 auto', overflowY: 'hidden' }}>
                 <Section data-testid='workbench.section.treeView' minSize={100} defaultSize={section1Width.current} maxSize={400} onSizeChanged={(curSize) => {
                     section1Width.current = curSize // need to avoid re-render here so useRef...
                     localStorage.setItem("bench.Section1Width", JSON.stringify(section1Width.current))

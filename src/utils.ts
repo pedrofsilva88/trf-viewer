@@ -18,6 +18,7 @@ export interface TableEntity {
 }
 
 export const getTableEntityCellTable = (db: DB, entityId: number, name?: string): TableEntity => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const resultRows: any[] =
         db.exec({ sql: `SELECT row, col, value from tableentity_cell where entity_id=${entityId};`, returnValue: 'resultRows', rowMode: 'array' })
     // sort by row/col:

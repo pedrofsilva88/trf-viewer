@@ -15,6 +15,7 @@ import { FileData } from './utils';
 export interface TrfReport {
     fileData: FileData,
     db: DB,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     dbInfo: any,
 }
 
@@ -45,6 +46,7 @@ export interface TrfReportItem {
     targetValue?: string,
     comment?: string,
     children: TrfReportItem[],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     _internalData?: Record<string, any> // to store internal data e.g. within the tree. currently used for recordings
 }
 
@@ -70,8 +72,8 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
     const [listSelectedNodeId, setListSelectedNodeId] = useState<number | undefined>(undefined)
     const [listViewType, setListViewType] = useState<ViewType>(ViewType.PrjSummary)
 
-    const [lsSection1Width, _setLSSection1Width] = useLocalStorage<number>("bench.Section1Width", 200)
-    const [lsSection2Height, _setLSSection2Height] = useLocalStorage<number>("bench.Section2Height", 400)
+    const [lsSection1Width,] = useLocalStorage<number>("bench.Section1Width", 200)
+    const [lsSection2Height,] = useLocalStorage<number>("bench.Section2Height", 400)
     // need to debounce it so we store it in a ref (to avoid rerender)
     // and have a timer that checks and stores in localStorage
     const section1Width = useRef<number>(lsSection1Width)
@@ -84,6 +86,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
         // load all report items:
         console.time(`exec query for all reportitems`)
         const columnNames: string[] = []
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const resultRows: any[] =
             trf.db.exec({ sql: `SELECT id, parent_id, src_category, src_type, src_subtype, src_index, exec_level, activity, name, label, duration, timestamp, timestamp_relative, result, original_result, elementary_result, image_id, info, targetvalue, comment from reportitem join reportitem_data on reportitem_data.reportitem_id = reportitem.id left join reportitem_image on reportitem_image.key = reportitem_data.reportitem_image_key;`, returnValue: 'resultRows', rowMode: 'array', columnNames: columnNames })
         // todo check whether callback or rowMode array is faster
@@ -190,6 +193,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
             }
         }
         try {// add recordings: to the first level packages
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const rrRecordings: any[] =
                 trf.db.exec({ sql: `SELECT * from r_reportitem_recording;`, returnValue: 'resultRows', rowMode: 'object' })
             console.log(`TrfWorkbenchView useEffect[trf]... got ${rrRecordings.length} recordings`)
@@ -246,7 +250,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
     if (rootReportItems.length) {
         return <div className='trfWorkbenchView' style={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto', overflowY: 'hidden' }}>
             {false && [...Array(43).keys()].map(i => <TrfImage db={props.trf.db} id={1 + i} />)}
-            <Container beforeApplyResizer={(_resizer) => {
+            <Container beforeApplyResizer={() => {
                 console.log(`beforeApplyResizer(${props.trf.fileData.file.name})`)
             }} key={props.trf.fileData.file.name} style={{ flex: '1 1 auto', overflowY: 'hidden' }}>
                 <Section data-testid='workbench.section.treeView' minSize={100} defaultSize={section1Width.current} maxSize={400} onSizeChanged={(curSize) => {

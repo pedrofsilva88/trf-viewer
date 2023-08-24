@@ -138,7 +138,7 @@ function App() {
           const dbs = uint8Arrays.map(([bytes, fileData]) => {
             const p = sqlite3.wasm.allocFromTypedArray(bytes);
             const db = new sqlite3.oo1.DB();
-            let rc = sqlite3.capi.sqlite3_deserialize(
+            const rc = sqlite3.capi.sqlite3_deserialize(
               db.pointer,
               "main",
               p,
@@ -151,13 +151,13 @@ function App() {
           })
           const reports: (TrfReport | undefined)[] = dbs.map(([db, fileData]) => {
             console.log(`db(${fileData}).dbName=`, db.dbName())
-            const info: any[] = db.exec({ sql: "SELECT * from info limit 1; ", returnValue: "resultRows", rowMode: "object" })
+            const info: Record<string, string | number | boolean>[] = db.exec({ sql: "SELECT * from info limit 1; ", returnValue: "resultRows", rowMode: "object" })
             if (info.length > 0) {
               console.log(`db.info[0]=`, info[0])
-              if (info[0].db_version < DB_VERSION_MIN) {
+              if (info[0].db_version as number < DB_VERSION_MIN) {
                 enqueueSnackbar(`Un-known/-tested (too old) db version ${info[0].db_version} < ${DB_VERSION_MIN}. App name :'${info[0].app_name || ''} (version: ${info[0].app_version || ''}})'. Please report any issues.`,
                   { preventDuplicate: true, variant: 'warning', autoHideDuration: 9000 })
-              } else if (info[0].db_version > DB_VERSION_MAX) {
+              } else if (info[0].db_version as number > DB_VERSION_MAX) {
                 enqueueSnackbar(`Un-known/-tested (newer) db version ${info[0].db_version} > ${DB_VERSION_MAX}. App name :'${info[0].app_name || ''} (version: ${info[0].app_version || ''}})'. Please report any issues.`,
                   { preventDuplicate: true, variant: 'warning', autoHideDuration: 9000 })
               }
@@ -332,7 +332,7 @@ function App() {
                   Hint: Use/drag'n'drop a zip file including the .trf and all recordings. That allows you to download the recordings automatically on the Recordings page.
                 </Typography>
               </div>}
-              {testReports.length === 1 && testReports.map((report, _idx) => getRenderedReport(report, true))}
+              {testReports.length === 1 && testReports.map((report,) => getRenderedReport(report, true))}
               {testReports.length > 1 && (<div style={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto', overflowY: 'hidden' }} >
                 <div style={{ width: '100%', textAlign: 'left' }}>
                   <ResponsiveNav removable appearance="tabs" moreText={<MoreIcon />}
@@ -346,12 +346,12 @@ function App() {
                       setTestReports(newReports)
                       setActiveTrf(newReports.length > 0 ? newReports[0].fileData.file.name : undefined)
                     }}>
-                    {testReports.map((report, _idx) => <ResponsiveNav.Item key={report.fileData.file.name} eventKey={report.fileData.file.name}>
+                    {testReports.map((report,) => <ResponsiveNav.Item key={report.fileData.file.name} eventKey={report.fileData.file.name}>
                       {report.fileData.file.name}
                     </ResponsiveNav.Item>)}
                   </ResponsiveNav>
                 </div>
-                {testReports.map((report, _idx) => <div style={{ flexDirection: 'column', flex: report.fileData.file.name === activeTrf ? '1 1 auto' : '0 0 0px', overflowY: 'hidden', transform: report.fileData.file.name === activeTrf ? '' : 'scale(0)', display: 'flex' }}>{getRenderedReport(report, report.fileData.file.name === activeTrf)}</div>)}
+                {testReports.map((report,) => <div style={{ flexDirection: 'column', flex: report.fileData.file.name === activeTrf ? '1 1 auto' : '0 0 0px', overflowY: 'hidden', transform: report.fileData.file.name === activeTrf ? '' : 'scale(0)', display: 'flex' }}>{getRenderedReport(report, report.fileData.file.name === activeTrf)}</div>)}
               </div>)
               }
               <div className='gitSha' style={{ flex: '0 1 auto' }}>build from <a href="https://github.com/mbehr1/trf-viewer" target="_blank">github/mbehr1/trf-viewer</a> commit #{__COMMIT_HASH__}</div>

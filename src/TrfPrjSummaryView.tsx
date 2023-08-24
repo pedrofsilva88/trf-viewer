@@ -35,7 +35,7 @@ export const TrfPrjSummaryView = (props: TrfPrjSummaryViewProps) => {
     const [entityTables, setEntityTables] = useState<TableEntity[]>([])
     const [listSelectedItem, setListSelectedItem] = useState<TrfReportItem | undefined>(undefined)
 
-    const [lsSectionHeight, _setLSSectionHeight] = useLocalStorage<number>("prjSummary.SectionHeight", 400)
+    const [lsSectionHeight,] = useLocalStorage<number>("prjSummary.SectionHeight", 400)
     const sectionHeight = useRef<number>(lsSectionHeight)
 
     useEffect(() => {
@@ -59,6 +59,7 @@ export const TrfPrjSummaryView = (props: TrfPrjSummaryViewProps) => {
             }
             {
                 // any statistics?
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const resultRows: any[] =
                     trf.db.exec({ sql: `SELECT * from entity where reportitem_id=${selected.id};`, returnValue: 'resultRows', rowMode: 'object' })
                 console.log(`TrfPrjSummaryView.useEffect[selected] got ${resultRows.length} entity rows for ${selected.id}`, resultRows)

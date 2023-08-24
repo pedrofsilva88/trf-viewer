@@ -97,7 +97,7 @@ export const TrfListView = (props: TrfListViewProps) => {
         if (isOpen) {
             setExpanded(expanded => [...expanded, rowData.id]);
         } else {
-            setExpanded(expanded => { let newExp = [...expanded]; newExp.splice(newExp.findIndex(i => i === rowData.id), 1); return newExp })
+            setExpanded(expanded => { const newExp = [...expanded]; newExp.splice(newExp.findIndex(i => i === rowData.id), 1); return newExp })
         }
 
     };
@@ -248,6 +248,7 @@ export const TrfListView = (props: TrfListViewProps) => {
     interface MyRowDataType {
         dataKey?: string;
         children?: TrfReportItem[];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         [key: string]: any;
     }
 
@@ -271,8 +272,9 @@ export const TrfListView = (props: TrfListViewProps) => {
             cellBordered
             rowKey="id"
             rowHeight={24}
-            rowClassName={(rowData, _rowIdx) => `${rowData && rowData.id === selectedRow?.id ? `selected nodeId_${rowData?.id}` : `nodeId_${rowData?.id}`}`}
+            rowClassName={(rowData,) => `${rowData && rowData.id === selectedRow?.id ? `selected nodeId_${rowData?.id}` : `nodeId_${rowData?.id}`}`}
             fillHeight
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             data={selectedItems}
             expandedRowKeys={expanded}

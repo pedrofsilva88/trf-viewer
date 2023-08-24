@@ -34,7 +34,7 @@ export const TrfDetailView = (props: TrfDetailViewProps) => {
         console.log(`TrfDetailView.useEffect[selected] id=${selected.id}...`)//, selected)
         //console.time(`TrfDetailView.useEffect[selected]...`)
         try {
-            const resultRows: any[] =
+            const resultRows: { type: string, id: number, name: string }[] =
                 trf.db.exec({ sql: `SELECT * from entity where reportitem_id=${selected.id} order by id;`, returnValue: 'resultRows', rowMode: 'object' })
             // todo check whether callback or rowMode array is faster
             //console.log(`TrfDetailView.useEffect[selected] got ${resultRows.length} entity rows for ${selected.id}`)

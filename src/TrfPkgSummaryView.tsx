@@ -69,6 +69,7 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
                 newEntityTables.push(infoTable) // the first one will be shown outside the tabs
             }
             {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const resultRows: any[] =
                     trf.db.exec({ sql: `SELECT * from attribute where reportitem_id = ${selected.id}; `, returnValue: 'resultRows', rowMode: 'object' })
                 console.log(`TrfPkgSummaryView.useEffect[selected] got ${resultRows.length} attribute rows for ${selected.id}`)
@@ -85,7 +86,7 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
                 newEntityTables.push(attrTable)
             }
             {
-                const resultRows: any[] =
+                const resultRows: { name: string, value: string, description: string, origin: string }[] =
                     trf.db.exec({ sql: `SELECT * from constant; `, returnValue: 'resultRows', rowMode: 'object' })
                 // todo check whether callback or rowMode array is faster
                 console.log(`TrfPkgSummaryView.useEffect[selected] got ${resultRows.length} constant rows`)
@@ -108,6 +109,7 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
                 newEntityTables.push(constsTable)
             }
             {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const resultRows: any[] =
                     trf.db.exec({ sql: `SELECT tcf.* from tcf join ctx on tcf.id = ctx.tcf_id join reportitem on reportitem.ctx_id=ctx.id where reportitem.id =${selected.id}; `, returnValue: 'resultRows', rowMode: 'object' })
                 //console.log(`TrfPkgSummaryView.useEffect[selected] got ${resultRows.length} tbc rows`)
@@ -127,6 +129,7 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
                             { name: 'package dir', value: resultRows[0].pkgdir },
                         ]
                     }
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const rrMappings: any[] =
                         trf.db.exec({ sql: `SELECT * from tcf_mappingfile where tcf_id = ${resultRows[0].id};`, returnValue: 'resultRows', rowMode: 'object' })
                     const data = constsTable.data
@@ -134,6 +137,7 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
                         data.push({ name: "global mapping file", value: mapping.filename })
                     }
                     // todo add tcf_execution
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const rrEcus: any[] =
                         trf.db.exec({ sql: `SELECT * from tcf_ecu where tcf_id = ${resultRows[0].id};`, returnValue: 'resultRows', rowMode: 'object' })
                     for (const ecu of rrEcus as { [key: string]: string }[]) {
@@ -148,6 +152,7 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
                         data.push({ name: "DLT db", value: ecu.log_database })
                         data.push({ name: "DLT filter file", value: ecu.log_filter_file })
                     }
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const rrBus: any[] =
                         trf.db.exec({ sql: `SELECT * from tcf_bus where tcf_id = ${resultRows[0].id} order by id;`, returnValue: 'resultRows', rowMode: 'object' })
                     for (const bus of rrBus as { [key: string]: string }[]) {
@@ -156,6 +161,7 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
                         data.push({ name: "fibex channel", value: bus.fbxchn })
                     }
 
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const rrConsts: any[] =
                         trf.db.exec({ sql: `SELECT * from tcf_const where tcf_id = ${resultRows[0].id};`, returnValue: 'resultRows', rowMode: 'object' })
                     if (rrConsts.length) {
@@ -172,6 +178,7 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
             }
 
             {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const resultRows: any[] =
                     trf.db.exec({ sql: `SELECT tbc.* from tbc join ctx on tbc.id = ctx.tbc_id join reportitem on reportitem.ctx_id=ctx.id where reportitem.id =${selected.id}; `, returnValue: 'resultRows', rowMode: 'object' })
                 //console.log(`TrfPkgSummaryView.useEffect[selected] got ${resultRows.length} tbc rows`)
@@ -188,6 +195,7 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
                             value: resultRows[0].path
                         }]
                     }
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const resultRows2: any[] =
                         trf.db.exec({ sql: `SELECT * from tbc_tool where tbc_id = ${resultRows[0].id} order by id; `, returnValue: 'resultRows', rowMode: 'object' })
                     //console.log(`TrfPkgSummaryView.useEffect[selected] got ${resultRows2.length} tbc_tool rows`)
@@ -206,6 +214,7 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
                 }
             }
             {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const resultRows: any[] =
                     trf.db.exec({ sql: `SELECT * from libraries; `, returnValue: 'resultRows', rowMode: 'object' })
                 // todo check whether callback or rowMode array is faster

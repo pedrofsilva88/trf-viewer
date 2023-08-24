@@ -136,6 +136,7 @@ export const TrfPkgRecordingsView = (props: TrfPkgRecordingsViewProps) => {
                     } else {
                         setRecordingIds.add(rIRecord.recording_id)
                     }
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const resultRows: any[] =
                         trf.db.exec({ sql: `select recording.*, signalgroup.name as signalgroup_name, signalgroup.description as signalgroup_description  from recording join signalgroup on recording.signalgroup_id = signalgroup.id where recording.id = ${rIRecord.recording_id}; `, returnValue: 'resultRows', rowMode: 'object' })
                     if (resultRows.length) {

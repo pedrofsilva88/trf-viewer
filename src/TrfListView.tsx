@@ -67,6 +67,7 @@ const dateTimeOptions: Intl.DateTimeFormatOptions = {
 
 export const TrfListView = (props: TrfListViewProps) => {
 
+    const { onSelect } = props
     const tableRef = useRef<TableInstance<RowDataType<never>, number>>(null)
 
     // const dateTimeFormat = new Intl.DateTimeFormat("de-DE", dateTimeOptions)
@@ -79,7 +80,7 @@ export const TrfListView = (props: TrfListViewProps) => {
     }, [props.trf.dbInfo])
 
     const [listColumnWidths, setListColumnWidths] = useLocalStorage<ColumnWidths>("listColumnWidths", ColumnWidthsDefault)
-    useEffect(() => setListColumnWidths(ColumnWidthsDefault), [])
+    useEffect(() => setListColumnWidths(ColumnWidthsDefault), [setListColumnWidths])
 
     // for the details list view:
     const selectedItems: MyRowDataType[] = useMemo(() => { return props.selected ? [props.selected] : props.items }, [props.items, props.selected])
@@ -92,7 +93,7 @@ export const TrfListView = (props: TrfListViewProps) => {
         // setSelected([])// selectedItems.map(item => item.id.toString())) // or only the first?
     }, [selectedItems])
 
-    const onExpandChange = (isOpen: boolean, rowData: MyRowDataType) => {
+    const onExpandChange = useCallback((isOpen: boolean, rowData: MyRowDataType) => {
         // console.log(`TrfListView.onExpandChange(isOpen=${isOpen}, item.id=${rowData.id})`)
         if (isOpen) {
             setExpanded(expanded => [...expanded, rowData.id]);
@@ -100,7 +101,7 @@ export const TrfListView = (props: TrfListViewProps) => {
             setExpanded(expanded => { const newExp = [...expanded]; newExp.splice(newExp.findIndex(i => i === rowData.id), 1); return newExp })
         }
 
-    };
+    }, [])
 
     const timerRef = useRef<number>()
     const timer2Ref = useRef<number>()
@@ -115,10 +116,10 @@ export const TrfListView = (props: TrfListViewProps) => {
         if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = undefined }
         if (doDebounce) {
             timerRef.current = window.setTimeout(() => {
-                props.onSelect(ViewType.TestSteps, node.id)
+                onSelect(ViewType.TestSteps, node.id)
             }, 500)
         } else {
-            props.onSelect(ViewType.TestSteps, node.id)
+            onSelect(ViewType.TestSteps, node.id)
         }
         setSelectedRow(node as unknown as TrfReportItem)
         // check whether the newly selected is visible:
@@ -157,7 +158,7 @@ export const TrfListView = (props: TrfListViewProps) => {
                 }
             }, 100)
         }
-    }, [props.onSelect, timerRef, timer2Ref, tableRef])
+    }, [onSelect, timerRef, timer2Ref, tableRef])
 
     const onKeyPress = useCallback((keyCode: string) => {
         if (selectedRow) {
@@ -236,7 +237,7 @@ export const TrfListView = (props: TrfListViewProps) => {
 
             }
         }
-    }, [selectedRow, props.selected, expanded, selectItem])
+    }, [selectedRow, props.selected, expanded, selectItem, onExpandChange])
 
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
 

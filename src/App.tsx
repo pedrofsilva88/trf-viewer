@@ -226,7 +226,7 @@ function App() {
     if (!activeTrf && testReports.length > 0) {
       setActiveTrf(testReports[0].fileData.file.name)
     }
-  }, [testReports])
+  }, [testReports, activeTrf])
 
   const getRenderedReport = (trf: TrfReport, createIfEmpty: boolean): JSX.Element => {
     const reportMap = renderedReports.current;

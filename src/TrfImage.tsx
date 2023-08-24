@@ -90,7 +90,7 @@ export const TrfImage = (props: TrfImageProps) => {
                 console.error(`TrfImage(id=${props.id}) effect[] got error:${e}`)
             }
         }
-    }, [canvasRef, props.db, props.id, width, height]) // we simply re-render if width/heigth changed
+    }, [canvasRef, props, props.db, props.id, width, height]) // we simply re-render if width/heigth changed
 
     return <canvas ref={canvasRef} width={width} height={height} />
 }

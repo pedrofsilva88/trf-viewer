@@ -13,4 +13,4 @@ export const useSqliteInitEffect = (setSqlite3: React.Dispatch<React.SetStateAct
     return () => {
         console.log("Unloading sqlite3???")
     }
-}, [])
+}, [setSqlite3])

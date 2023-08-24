@@ -68,10 +68,10 @@ export const TrfPrjListView = (props: TrfPrjListViewProps) => {
         // we could show another column in the time of that timezone by checking the
         // local offset at test start time and then modifying by the delta
         return new Intl.DateTimeFormat(undefined, { ...dateTimeOptions })
-    }, [props.trf.dbInfo])
+    }, [])
 
     const [listColumnWidths, setListColumnWidths] = useLocalStorage<ColumnWidths>("PrjListColumnWidths", ColumnWidthsDefault)
-    useEffect(() => setListColumnWidths(ColumnWidthsDefault), [])
+    useEffect(() => setListColumnWidths(ColumnWidthsDefault), [setListColumnWidths])
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
 
     // Table with
@@ -95,6 +95,7 @@ export const TrfPrjListView = (props: TrfPrjListViewProps) => {
             rowKey="id"
             rowHeight={24}
             fillHeight
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             data={props.items}
             /** shouldUpdateScroll: whether to update the scroll bar after data update **/

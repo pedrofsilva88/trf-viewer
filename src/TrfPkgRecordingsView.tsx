@@ -5,7 +5,7 @@
  */
 
 import { useMediaQuery } from 'usehooks-ts';
-import { ItemType, TrfReport, TrfReportItem } from './TrfWorkbenchView'
+import { TrfReport, TrfReportItem } from './TrfWorkbenchView'
 import { useEffect, useState } from 'react';
 
 import './TrfPkgRecordingsView.css'
@@ -17,6 +17,7 @@ import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
+import { ItemType } from './utils';
 
 interface TrfPkgRecordingsViewProps {
     trf: TrfReport,
@@ -157,7 +158,7 @@ export const TrfPkgRecordingsView = (props: TrfPkgRecordingsViewProps) => {
         return () => {
             console.log(`TrfPkgRecordingsView.useEffect[selected] unmount`)
         }
-    }, [selected, trf.db, reportItemRecordings])
+    }, [selected, trf.db, reportItemRecordings, trf.fileData.deferredZipFile, trf.fileData.file.name])
 
     const tableFromTableEntity = (et: TableEntity, key: string) => {
         return <div key={key} style={{ display: 'table', padding: '6px 0px 4px 0px' }}>

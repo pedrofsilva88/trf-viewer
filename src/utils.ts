@@ -127,3 +127,18 @@ export class DeferredZipFile {
         return unzippedFromZipAsFiles
     }
 }
+
+export enum ItemType {
+    Project,
+    Package,
+    TestSteps,
+    Recordings, // virtual item for Recordings, id points to the pkg/parent in the tree
+}
+
+export enum ViewType {
+    None,
+    PrjSummary,
+    PkgSummary,
+    PkgRecordings,
+    TestSteps,
+}

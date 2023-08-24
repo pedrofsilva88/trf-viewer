@@ -73,7 +73,7 @@ export const TrfDetailView = (props: TrfDetailViewProps) => {
         return () => {
             // console.log(`TrfDetailView.useEffect[selected] unmount`)
         }
-    }, [selected])
+    }, [selected, trf.db])
 
     return <div className={`trfDetailView${prefersDarkMode ? ' rs-theme-dark' : ''}`}>
         {`Detail view for ${selected.srcIndex || ''}:${selected.name || selected.label} `}

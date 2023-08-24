@@ -4,10 +4,11 @@ import SvgIcon, { SvgIconProps } from '@mui/material/SvgIcon'
 import { Table } from 'rsuite'
 
 import './TrfListView.css'
-import { TrfReport, TrfReportItem, ViewType } from './TrfWorkbenchView'
+import { TrfReport, TrfReportItem } from './TrfWorkbenchView'
 import { TrfImage } from './TrfImage'
 import { useLocalStorage, useMediaQuery } from 'usehooks-ts'
 import { RowDataType, TableInstance } from 'rsuite/esm/Table'
+import { ViewType } from './utils'
 
 interface TrfListViewProps {
     trf: TrfReport,

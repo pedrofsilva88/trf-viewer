@@ -2,9 +2,10 @@ import { DetailedHTMLProps, HTMLAttributes, useEffect, useMemo } from 'react'
 import { Table } from 'rsuite'
 
 import './TrfPrjListView.css'
-import { TrfReport, TrfReportItem, ViewType } from './TrfWorkbenchView'
+import { TrfReport, TrfReportItem } from './TrfWorkbenchView'
 import { TrfImage } from './TrfImage'
 import { useLocalStorage, useMediaQuery } from 'usehooks-ts'
+import { ViewType } from './utils'
 
 interface TrfPrjListReportItem extends TrfReportItem {
     idx: number,

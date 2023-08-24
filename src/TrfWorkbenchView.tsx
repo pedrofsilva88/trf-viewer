@@ -10,20 +10,13 @@ import { TrfDetailView } from './TrfDetailView';
 import { TrfPkgSummaryView } from './TrfPkgSummaryView';
 import { TrfPrjSummaryView } from './TrfPrjSummaryView';
 import { TrfPkgRecordingsView } from './TrfPkgRecordingsView';
-import { FileData } from './utils';
+import { FileData, ItemType, ViewType } from './utils';
 
 export interface TrfReport {
     fileData: FileData,
     db: DB,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     dbInfo: any,
-}
-
-export enum ItemType {
-    Project,
-    Package,
-    TestSteps,
-    Recordings, // virtual item for Recordings, id points to the pkg/parent in the tree
 }
 
 export interface TrfReportItem {
@@ -48,14 +41,6 @@ export interface TrfReportItem {
     children: TrfReportItem[],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     _internalData?: Record<string, any> // to store internal data e.g. within the tree. currently used for recordings
-}
-
-export enum ViewType {
-    None,
-    PrjSummary,
-    PkgSummary,
-    PkgRecordings,
-    TestSteps,
 }
 
 interface TrfWorkbenchProps {

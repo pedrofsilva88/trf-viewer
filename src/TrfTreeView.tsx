@@ -5,11 +5,12 @@ import TreeItem, { TreeItemContentProps, TreeItemProps, useTreeItem } from '@mui
 
 import './TrfTreeView.css'
 import { TrfImage } from './TrfImage'
-import { ItemType, TrfReportItem, ViewType } from './TrfWorkbenchView'
+import { TrfReportItem } from './TrfWorkbenchView'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import { forwardRef, useMemo } from 'react'
 import clsx from 'clsx';
+import { ItemType, ViewType } from './utils'
 
 interface TrfTreeViewProps {
     packageItems: TrfReportItem[]

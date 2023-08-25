@@ -5,16 +5,15 @@ test('has title', async ({ page }) => {
 
   await expect(page).toHaveTitle(/TRF Viewer/)
   await expect(page.getByText('Open a trf test report file...')).toBeVisible()
-});
-
+})
 
 test('open trf file', async ({ page }) => {
   console.log(`cwd=${process.cwd()}`)
   page.on('console', async (msg) => {
     try {
-      const msgArgs = msg.args();
-      const logValues = await Promise.all(msgArgs.map(async arg => await arg.jsonValue()));
-      console.log(...logValues);
+      const msgArgs = msg.args()
+      const logValues = await Promise.all(msgArgs.map(async (arg) => await arg.jsonValue()))
+      console.log(...logValues)
     } catch (e) {
       console.error(`page.on(console) got error:${e}`)
     }
@@ -22,11 +21,11 @@ test('open trf file', async ({ page }) => {
   })
 
   await page.goto('/')
-  await expect(page.getByText('Drag \'n\' drop files here, or click to select files')).toBeVisible()
+  await expect(page.getByText("Drag 'n' drop files here, or click to select files")).toBeVisible()
   const inputFile = page.locator('input[type="file"]')
   await inputFile.waitFor({ state: 'hidden' })
 
   await page.setInputFiles('input[type="file"]', './basic_test.trf', { strict: true })
 
   await expect(page.getByText('Summary: Project')).toBeVisible()
-});
+})

@@ -1,48 +1,47 @@
 .trfListView {
-    text-align: left;
-    height: 100%;
-    width: 100%;
-    font-size: 0.75rem;
+  text-align: left;
+  height: 100%;
+  width: 100%;
+  font-size: 0.75rem;
 }
 
 .trfListView .rs-table-row.selected {
-    background-color: #81a5d1;
+  background-color: #81a5d1;
 }
 
 .trfListView .rs-table-row.selected .rs-table-cell {
-    background-color: #81a5d1;
+  background-color: #81a5d1;
 }
-.trfListView .rs-table-cell-content:has(span[result~="SUCCESS"]) {
-    background-color: green;
-}
-
-.trfListView .rs-table-cell-content:has(span[result~="FAILED"]) {
-    background-color: red;
+.trfListView .rs-table-cell-content:has(span[result~='SUCCESS']) {
+  background-color: green;
 }
 
-.trfListView .rs-table-cell-content:has(span[result~="ERROR"]) {
-    background-color: darkred;
+.trfListView .rs-table-cell-content:has(span[result~='FAILED']) {
+  background-color: red;
 }
 
-.trfListView .rs-table-cell-content:has(span[result~="NONE"]) {
-    background-color: gray;
+.trfListView .rs-table-cell-content:has(span[result~='ERROR']) {
+  background-color: darkred;
+}
+
+.trfListView .rs-table-cell-content:has(span[result~='NONE']) {
+  background-color: gray;
 }
 @supports not selector(:has(a, b)) {
+  /* Fallback for when :has() is unsupported */
+  .trfListView span[result~='SUCCESS'] {
+    color: green;
+  }
 
-    /* Fallback for when :has() is unsupported */
-    .trfListView span[result~="SUCCESS"] {
-        color: green;
-    }
+  .trfListView span[result~='FAILED'] {
+    color: red;
+  }
 
-    .trfListView span[result~="FAILED"] {
-        color: red;
-    }
+  .trfListView span[result~='ERROR'] {
+    color: darkred;
+  }
 
-    .trfListView span[result~="ERROR"] {
-        color: darkred;
-    }
-
-    .trfListView span[result~="NONE"] {
-        color: gray;
-    }
+  .trfListView span[result~='NONE'] {
+    color: gray;
+  }
 }

@@ -1,106 +1,106 @@
 // TODO remove this once `@sqlite.org/sqlite-wasm` has types
 declare module '@sqlite.org/sqlite-wasm' {
-    export type TODO = any
+  export type TODO = any
 
-    interface Window {
-        // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-        sqlite3InitModule: (_?: TODO) => Promise<import('./sqlite3').Sqlite3>
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+    sqlite3InitModule: (_?: TODO) => Promise<import('./sqlite3').Sqlite3>
+  }
+
+  export type Sqlite3 = {
+    oo1: {
+      DB: new (options?: OO1DBOptions) => DB
+      OpfsDb: new (filename: string, mode: string) => DB
     }
-
-    export type Sqlite3 = {
-        oo1: {
-            DB: new (options?: OO1DBOptions) => DB
-            OpfsDb: new (filename: string, mode: string) => DB
-        }
-        opfs?: {
-            debug: TODO
-            deleteEntry: TODO
-            entryExists: TODO
-            metrics: TODO
-            mkdir: TODO
-            randomFilename: TODO
-            registerVfs: TODO
-            rootDirectory: TODO
-        }
-        capi: {
-            sqlite3_deserialize: TODO
-            [key: string]: TODO
-        }
-        wasm: {
-            allocFromTypedArray: (typedArray: Uint8Array) => number
-            [key: string]: TODO
-        }
+    opfs?: {
+      debug: TODO
+      deleteEntry: TODO
+      entryExists: TODO
+      metrics: TODO
+      mkdir: TODO
+      randomFilename: TODO
+      registerVfs: TODO
+      rootDirectory: TODO
     }
-
-    /** https://sqlite.org/wasm/doc/trunk/api-oo1.md#db-ctor */
-    export type OO1DBOptions = {
-        /** @default ':memory:' */
-        filename?: string
-        /** open-mode flags */
-        flags?: string
-        /** name of the sqlite3_vfs to use */
-        vfs?: string
+    capi: {
+      sqlite3_deserialize: TODO
+      [key: string]: TODO
     }
-
-    export declare const InitWasm: () => Promise<Sqlite3>
-
-    export default InitWasm
-
-    export class DB {
-        filename: string
-        pointer: TODO
-
-        affirmOpen(): DB
-
-        changes(total: boolean, sixtyFour: boolean): number
-
-        exec(options: ExecOptions): TODO
-        exec(query: FlexibleString, options?: ExecOptions): TODO
-        close(): DB
-        export(): TODO
-        /**
-         * @example aDb.prepare("INSERT INTO foo(a) VALUES(?)").bind(123).stepFinalize();
-         */
-        prepare(query: FlexibleString): Stmt
-
-        checkRc(db: TODO, resultCode: TODO)
-
-        createFunction(): TODO
-
-        dbFilename(): string
-
-        dbName(): string
+    wasm: {
+      allocFromTypedArray: (typedArray: Uint8Array) => number
+      [key: string]: TODO
     }
+  }
 
-    export type ExecOptions = {
-        sql?: FlexibleString
-        bind?: Bindable
-        // saveSql?: TODO
+  /** https://sqlite.org/wasm/doc/trunk/api-oo1.md#db-ctor */
+  export type OO1DBOptions = {
+    /** @default ':memory:' */
+    filename?: string
+    /** open-mode flags */
+    flags?: string
+    /** name of the sqlite3_vfs to use */
+    vfs?: string
+  }
 
-        returnValue?: 'this' | 'resultRows' | 'saveSql'
+  export declare const InitWasm: () => Promise<Sqlite3>
 
-        rowMode?: 'array' | 'object' | 'stmt'
+  export default InitWasm
 
-        columnNames?: string[]
+  export class DB {
+    filename: string
+    pointer: TODO
 
-        resultRows?: TODO[]
-    }
+    affirmOpen(): DB
 
-    export type FlexibleString = string | Uint8Array | Int8Array | string[]
+    changes(total: boolean, sixtyFour: boolean): number
 
-    /** https://sqlite.org/wasm/doc/trunk/api-oo1.md#stmt-properties */
-    export interface Stmt {
-        columnCount: number
-        parameterCount: number
-        pointer: TODO
+    exec(options: ExecOptions): TODO
+    exec(query: FlexibleString, options?: ExecOptions): TODO
+    close(): DB
+    export(): TODO
+    /**
+     * @example aDb.prepare("INSERT INTO foo(a) VALUES(?)").bind(123).stepFinalize();
+     */
+    prepare(query: FlexibleString): Stmt
 
-        bind(bindable: Bindable): Stmt
-        bind(indexOrParameterName: number | string, bindable: Bindable): Stmt
+    checkRc(db: TODO, resultCode: TODO)
 
-        stepFinalize(): boolean
-    }
+    createFunction(): TODO
 
-    export type Bindable = BindableValue[] | Record<string, BindableValue>
+    dbFilename(): string
 
-    export type BindableValue = null | undefined | number | boolean | string | Uint8Array | Int8Array
+    dbName(): string
+  }
+
+  export type ExecOptions = {
+    sql?: FlexibleString
+    bind?: Bindable
+    // saveSql?: TODO
+
+    returnValue?: 'this' | 'resultRows' | 'saveSql'
+
+    rowMode?: 'array' | 'object' | 'stmt'
+
+    columnNames?: string[]
+
+    resultRows?: TODO[]
+  }
+
+  export type FlexibleString = string | Uint8Array | Int8Array | string[]
+
+  /** https://sqlite.org/wasm/doc/trunk/api-oo1.md#stmt-properties */
+  export interface Stmt {
+    columnCount: number
+    parameterCount: number
+    pointer: TODO
+
+    bind(bindable: Bindable): Stmt
+    bind(indexOrParameterName: number | string, bindable: Bindable): Stmt
+
+    stepFinalize(): boolean
+  }
+
+  export type Bindable = BindableValue[] | Record<string, BindableValue>
+
+  export type BindableValue = null | undefined | number | boolean | string | Uint8Array | Int8Array
 }

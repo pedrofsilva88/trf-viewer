@@ -23,6 +23,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Run code check
+        run: npm run lint && npm run check-code
+
       - name: Build project
         run: npm run build
 

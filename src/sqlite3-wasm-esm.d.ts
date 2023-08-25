@@ -1,9 +1,9 @@
 // TODO remove this once `@sqlite.org/sqlite-wasm` has types
 declare module '@sqlite.org/sqlite-wasm' {
+  // eslint-disable-next-line
   export type TODO = any
 
   interface Window {
-    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
     sqlite3InitModule: (_?: TODO) => Promise<import('./sqlite3').Sqlite3>
   }
 

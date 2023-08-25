@@ -26,6 +26,8 @@ jobs:
           key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
       - name: Install dependencies
         run: npm ci
+      - name: Run code check
+        run: npm run lint && npm run check-code
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
         if: steps.playwright-cache.outputs.cache-hit != 'true'

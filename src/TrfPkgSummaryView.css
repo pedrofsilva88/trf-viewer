@@ -1,22 +1,22 @@
 .trfPkgSummaryView {
-    text-align: left;
-    height: 100%;
-    width: 100%;
-    font-size: 0.6rem;
-    overflow: auto;
-    padding: 2px 0px 0px 2px;
+  text-align: left;
+  height: 100%;
+  width: 100%;
+  font-size: 0.6rem;
+  overflow: auto;
+  padding: 2px 0px 0px 2px;
 }
 
 .trfPkgSummaryView .MuiTableCell-sizeSmall {
-    font-size: inherit;
-    padding: 0px 6px 0px 0px;
+  font-size: inherit;
+  padding: 0px 6px 0px 0px;
 }
 
 .trfPkgSummaryView .MuiTableRow-head {
-    font-size: 0.7rem;
+  font-size: 0.7rem;
 }
 
 .trfPkgSummaryView .MuiButtonBase-root.MuiTab-root {
-    min-height: 24px;
-    padding: 2px 16px 2px 16px;
+  min-height: 24px;
+  padding: 2px 16px 2px 16px;
 }

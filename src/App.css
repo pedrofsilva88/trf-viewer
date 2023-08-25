@@ -1,4 +1,4 @@
-@import "rsuite/dist/rsuite.css";
+@import 'rsuite/dist/rsuite.css';
 
 .rs-table-cell-expand-wrapper {
   margin-right: 2px;
@@ -23,8 +23,8 @@
   padding: 0;
   text-align: center;
   display: flex;
-    flex-direction: column;
-    height: 100vh;
+  flex-direction: column;
+  height: 100vh;
 }
 
 .logo {
@@ -67,7 +67,7 @@
   border-style: dashed;
   color: #bdbdbd;
   outline: none;
-  transition: border .24s ease-in-out;
+  transition: border 0.24s ease-in-out;
 }
 .indeterminateProgressBar {
   background-color: #d1d5db;
@@ -112,11 +112,11 @@
 
 .testSingleContainer {
   display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    grid-gap: 0.5em;
-  }
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-gap: 0.5em;
+}
 /* these are the tiles for the single reports */
-.testSingleContainer>div {
+.testSingleContainer > div {
   aspect-ratio: 1 / 1.1;
   max-width: 100%;
   min-width: 0;

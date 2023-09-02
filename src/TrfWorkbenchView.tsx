@@ -157,17 +157,17 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
       // package?
       // we assume they are sorted...
       // todo add roots properly. for now we assume there is just one!
-      if (src_type === 'PACKAGE') {
+      if (src_type === 'PACKAGE' || (src_type === 'PROJECT' && parentId)) {
         if (exec_level === 0) {
           //if (!src_subtype && src_category === 2) {
           last_package = {
             ...tvi,
-            itemType: ItemType.Package,
+            itemType: src_type === 'PACKAGE' ? ItemType.Package : ItemType.Project,
             children: [],
           }
           packages.push(last_package)
         } else {
-          if (last_package !== undefined) {
+          if (last_package !== undefined && src_type === 'PACKAGE') {
             if (last_package.children.length === 0) {
               last_package.children.push({
                 parent: last_package,

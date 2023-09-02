@@ -173,7 +173,7 @@ function App() {
           })
           const reports: (TrfReport | undefined)[] = dbs.map(([db, fileData]) => {
             console.log(`db(${fileData}).dbName=`, db.dbName())
-            const info: Record<string, string | number | boolean>[] = db.exec({
+            const info: Record<string, string | number | null | Uint8Array>[] = db.exec({
               sql: 'SELECT * from info limit 1; ',
               returnValue: 'resultRows',
               rowMode: 'object',

@@ -73,7 +73,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
     const columnNames: string[] = []
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const resultRows: any[] = trf.db.exec({
-      sql: `SELECT id, parent_id, src_category, src_type, src_subtype, src_index, exec_level, activity, name, label, duration, timestamp, timestamp_relative, result, original_result, elementary_result, image_id, info, targetvalue, comment from reportitem join reportitem_data on reportitem_data.reportitem_id = reportitem.id left join reportitem_image on reportitem_image.key = reportitem_data.reportitem_image_key;`,
+      sql: `SELECT id, parent_id, src_category, src_type, src_subtype, src_index, exec_level, loopcycle, activity, name, label, duration, timestamp, timestamp_relative, result, original_result, elementary_result, image_id, info, targetvalue, comment from reportitem join reportitem_data on reportitem_data.reportitem_id = reportitem.id left join reportitem_image on reportitem_image.key = reportitem_data.reportitem_image_key;`,
       returnValue: 'resultRows',
       rowMode: 'array',
       columnNames: columnNames,
@@ -88,8 +88,9 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
     const roots: TrfReportItem[] = [] // all without parent_id
     const idxIdCol = columnNames.findIndex((colName) => colName === 'id')
     const idxSrcIndexCol = columnNames.findIndex((colName) => colName === 'src_index')
-    //const idxSrcCategoryCol = columnNames.findIndex((colName) => colName === 'src_category')
+    const idxSrcCategoryCol = columnNames.findIndex((colName) => colName === 'src_category')
     const idxExecLevelCol = columnNames.findIndex((colName) => colName === 'exec_level')
+    const idxLoopcycleCol = columnNames.findIndex((colName) => colName === 'loopcycle')
     const idxActivityCol = columnNames.findIndex((colName) => colName === 'activity')
     const idxNameCol = columnNames.findIndex((colName) => colName === 'name')
     const idxLabelCol = columnNames.findIndex((colName) => colName === 'label')
@@ -115,11 +116,12 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
       const imageId = row[idxImageIdCol] as string
       const targetValue = row[idxTargetValueCol]
       const exec_level = row[idxExecLevelCol]
-      //const src_category = row[idxSrcCategoryCol]
+      const src_category = row[idxSrcCategoryCol]
       const src_type = row[idxSrcTypeCol]
       const src_subtype = row[idxSrcSubtypeCol]
       const parentId = row[idxParentIdCol]
       const parentItem = parentId ? tmpReportitemMap.get(parentId) : undefined
+      const loopcycle = row[idxLoopcycleCol]
 
       const tvi: TrfReportItem = {
         id: row[idxIdCol],
@@ -158,7 +160,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
       // we assume they are sorted...
       // todo add roots properly. for now we assume there is just one!
       if (src_type === 'PACKAGE' || (src_type === 'PROJECT' && parentId)) {
-        if (exec_level === 0) {
+        if (exec_level === 0 && parentId === roots[roots.length - 1].id) {
           //if (!src_subtype && src_category === 2) {
           last_package = {
             ...tvi,
@@ -167,7 +169,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
           }
           packages.push(last_package)
         } else {
-          if (last_package !== undefined && src_type === 'PACKAGE') {
+          if (last_package !== undefined && src_type === 'PACKAGE' && loopcycle.length === 0) {
             if (last_package.children.length === 0) {
               last_package.children.push({
                 parent: last_package,
@@ -183,7 +185,11 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
             }
             last_package.children[0].children.push({ ...tvi, children: [] }) // todo here with the orig parent?
           } else {
-            console.warn(`TrfWorkbenchView useEffect[trf]... !last_package for ${tvi.id} ${src_type} ${src_subtype}`)
+            if (!last_package) {
+              console.warn(
+                `TrfWorkbenchView useEffect[trf]... !last_package for ${tvi.id} ${src_type} ${src_subtype} cat=${src_category} loopcycle=${loopcycle}`,
+              )
+            }
           }
         }
       }

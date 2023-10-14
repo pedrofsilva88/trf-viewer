@@ -46,8 +46,29 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
   const [visibleTab, setVisibleTab] = useState(0)
 
   useEffect(() => {
-    console.time(`TrfPkgSummaryView.useEffect[selected]...`)
+    console.time(`TrfPkgSummaryView.useEffect[selected](selected.id=${selected?.id})...`)
     try {
+      let pkgDesc: string | undefined
+      let pkgVersion: string | undefined
+      let pkgTestMgmtId: string | undefined
+
+      {
+        // try to get package infos like description, version, testmanagement_id
+        // seems like the connection is only via pkg name (and not a unique identity)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const resultRows: any[] = trf.db.exec({
+          sql: `SELECT pkg.* from pkg join reportitem_data on pkg.name=reportitem_data.name where reportitem_data.reportitem_id = ${selected.id};`,
+          returnValue: 'resultRows',
+          rowMode: 'object',
+        })
+        console.log(`TrfPkgSummaryView.useEffect[selected] got ${resultRows.length} pkg rows for ${selected.id}`)
+        if (resultRows.length === 1) {
+          pkgDesc = resultRows[0].description
+          pkgVersion = resultRows[0].version
+          pkgTestMgmtId = resultRows[0].testmanagement_id
+        }
+      }
+
       const newEntityTables: TableEntity[] = []
       {
         const infoTable: TableEntity = {
@@ -64,10 +85,13 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
             { attr: 'execution mode:', value: trf.dbInfo.execution_mode },
             { attr: 'duration:', value: timeFormat(selected.duration || 0, true) },
             { attr: 'comment:', value: selected.comment },
+            pkgDesc ? { attr: 'description:', value: pkgDesc } : undefined,
             { attr: 'file:', value: selected.info },
             { attr: 'test pc:', value: trf.dbInfo.teststand },
+            pkgTestMgmtId ? { attr: 'test script id:', value: pkgTestMgmtId } : undefined,
+            pkgVersion ? { attr: 'version:', value: pkgVersion } : undefined,
             { attr: 'swk version:', value: trf.dbInfo.swk_version },
-          ],
+          ].filter((f) => f !== undefined) as TableEntity['data'],
         }
         newEntityTables.push(infoTable) // the first one will be shown outside the tabs
       }
@@ -264,7 +288,7 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
 
       setEntityTables(newEntityTables)
 
-      console.timeEnd(`TrfPkgSummaryView.useEffect[selected]...`)
+      console.timeEnd(`TrfPkgSummaryView.useEffect[selected](selected.id=${selected?.id})...`)
     } catch (e) {
       console.error(`TrfPkgSummaryView.useEffect[selected] got error:${e} `)
       setEntityTables([])

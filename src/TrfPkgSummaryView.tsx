@@ -348,7 +348,13 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
                         {row[col.key] || ''}
                       </TableCell>
                     ) : (
-                      <TableCell key={col.key}>{row[col.key] || ''}</TableCell>
+                      <TableCell key={col.key}>
+                        {(row[col.key] || '').includes('\n') ? (
+                          <p style={{ whiteSpace: 'pre' }}>{row[col.key] || ''}</p>
+                        ) : (
+                          row[col.key] || ''
+                        )}
+                      </TableCell>
                     ),
                   )}
                 </TableRow>

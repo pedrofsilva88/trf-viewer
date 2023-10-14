@@ -97,7 +97,7 @@ function App() {
         .map((f) => {
           return { file: f }
         })
-      // we do only check for zip files if no xml file was dropped already
+      // we do only check for zip files if no trf file was dropped already
       const zipFiles =
         posTrfFiles.length === 0
           ? acceptedFiles.filter((f) => {

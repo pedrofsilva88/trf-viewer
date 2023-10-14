@@ -107,6 +107,15 @@ export const TrfPkgRecordingsView = (props: TrfPkgRecordingsViewProps) => {
                 console.log(`TrfPkgRecordingsView checking mapping.xml for: for '${recordingPath}' found '${fileMapping.mappedToPath}'`)
                 return fileMapping.mappedToPath
               }
+              // check as fallback for .zip file:
+              const pathWoBasePathZip = pathWoBasePath + '.zip'
+              const fileMappingZip = fileMappings.find((fm) => fm.combinedFilePath === pathWoBasePathZip)
+              if (fileMappingZip) {
+                console.log(
+                  `TrfPkgRecordingsView checking mapping.xml for: for '${recordingPath}' found zip '${fileMappingZip.mappedToPath}'`,
+                )
+                return fileMappingZip.mappedToPath
+              }
               console.log(`TrfPkgRecordingsView found no mapped file: for '${pathWoBasePath}' from '${trf.fileData.file.name}'`)
             } else {
               console.log(`TrfPkgRecordingsView got no deferred file: for '${recordingPath}' from '${trf.fileData.file.name}'`)

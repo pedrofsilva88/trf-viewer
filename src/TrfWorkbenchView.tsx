@@ -315,11 +315,13 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
                   <Bar size={6} style={{ background: 'currentColor', cursor: 'col-resize' }} />
                   <Section minSize={50}>
                     {listSelectedItem && (
-                      <TrfDetailView
-                        items={rootReportItems}
-                        selected={listSelectedItem ? listSelectedItem : rootReportItems[0]}
-                        trf={props.trf}
-                      />
+                      <div style={{ height: '100%', width: '100%', display: 'grid' }}>
+                        <TrfDetailView
+                          items={rootReportItems}
+                          selected={listSelectedItem ? listSelectedItem : rootReportItems[0]}
+                          trf={props.trf}
+                        />
+                      </div>
                     )}
                   </Section>
                 </Container>

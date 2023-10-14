@@ -194,7 +194,11 @@ export const TrfPrjSummaryView = (props: TrfPrjSummaryViewProps) => {
         <Bar size={6} style={{ background: 'currentColor', cursor: 'col-resize' }} />
         <Section minSize={50}>
           {!listSelectedItem && <div>No pkg selected</div>}
-          {listSelectedItem && <TrfDetailView items={props.items} selected={listSelectedItem} trf={props.trf} />}
+          {listSelectedItem && (
+            <div style={{ height: '100%', width: '100%', display: 'grid' }}>
+              <TrfDetailView items={props.items} selected={listSelectedItem} trf={props.trf} />
+            </div>
+          )}
         </Section>
       </Container>
     </div>

@@ -80,9 +80,9 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
     })
     // todo check whether callback or rowMode array is faster
     console.timeEnd(`exec query for all reportitems`)
-    console.log(`TrfWorkbenchView useEffect[trf]... got ${resultRows.length} resultRows`)
-    console.log(`TrfWorkbenchView useEffect[trf]... got columnNames: ${columnNames}`)
-    console.log(`TrfWorkbenchView useEffect[trf]... got 1st row ${resultRows[0]}`)
+    //console.log(`TrfWorkbenchView useEffect[trf]... got ${resultRows.length} resultRows`)
+    //console.log(`TrfWorkbenchView useEffect[trf]... got columnNames: ${columnNames}`)
+    // console.log(`TrfWorkbenchView useEffect[trf]... got 1st row ${resultRows[0]}`)
 
     const tmpReportitemMap = new Map<number, TrfReportItem>()
     const roots: TrfReportItem[] = [] // all without parent_id
@@ -202,7 +202,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
         returnValue: 'resultRows',
         rowMode: 'object',
       })
-      console.log(`TrfWorkbenchView useEffect[trf]... got ${rrRecordings.length} recordings`)
+      // console.log(`TrfWorkbenchView useEffect[trf]... got ${rrRecordings.length} recordings`)
       if (rrRecordings.length) {
         for (const rrRecording of rrRecordings as { reportitem_id: number; recording_id: number }[]) {
           const item = tmpReportitemMap.get(rrRecording.reportitem_id)
@@ -248,9 +248,9 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
     }
 
     setReportItemMap(tmpReportitemMap)
-    console.log(`TrfWorkbenchView useEffect[trf]... got ${roots.length} root items`)
+    // console.log(`TrfWorkbenchView useEffect[trf]... got ${roots.length} root items`)
     setRootReportItems(roots)
-    console.log(`TrfWorkbenchView useEffect[trf]... got ${packages.length} package items`)
+    // console.log(`TrfWorkbenchView useEffect[trf]... got ${packages.length} package items`)
     const rootPackages = roots.length === 1 ? [{ ...roots[0], children: packages }] : packages
     setPackageItems(rootPackages)
     console.timeEnd(`TrfWorkbenchView useEffect[trf]...`)
@@ -265,7 +265,7 @@ export const TrfWorkbenchView = (props: TrfWorkbenchProps) => {
         {false && [...Array(43).keys()].map((i) => <TrfImage db={props.trf.db} id={1 + i} />)}
         <Container
           beforeApplyResizer={() => {
-            console.log(`beforeApplyResizer(${props.trf.fileData.file.name})`)
+            // console.log(`beforeApplyResizer(${props.trf.fileData.file.name})`)
           }}
           key={props.trf.fileData.file.name}
           style={{ flex: '1 1 auto', overflowY: 'hidden' }}

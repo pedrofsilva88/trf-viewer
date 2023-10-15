@@ -61,11 +61,12 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
           returnValue: 'resultRows',
           rowMode: 'object',
         })
-        console.log(`TrfPkgSummaryView.useEffect[selected] got ${resultRows.length} pkg rows for ${selected.id}`)
         if (resultRows.length === 1) {
           pkgDesc = resultRows[0].description
           pkgVersion = resultRows[0].version
           pkgTestMgmtId = resultRows[0].testmanagement_id
+        } else {
+          console.warn(`TrfPkgSummaryView.useEffect[selected] got ${resultRows.length} pkg rows for ${selected.id}`)
         }
       }
 
@@ -122,7 +123,7 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
           rowMode: 'object',
         })
         // todo check whether callback or rowMode array is faster
-        console.log(`TrfPkgSummaryView.useEffect[selected] got ${resultRows.length} constant rows`)
+        // console.log(`TrfPkgSummaryView.useEffect[selected] got ${resultRows.length} constant rows`)
         // sort by name
         resultRows.sort((a, b) => {
           const na: string = a.name || ''
@@ -271,7 +272,7 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const resultRows: any[] = trf.db.exec({ sql: `SELECT * from libraries; `, returnValue: 'resultRows', rowMode: 'object' })
         // todo check whether callback or rowMode array is faster
-        console.log(`TrfPkgSummaryView.useEffect[selected] got ${resultRows.length} libraries rows`)
+        // console.log(`TrfPkgSummaryView.useEffect[selected] got ${resultRows.length} libraries rows`)
 
         const constsTable: TableEntity = {
           name: 'libraries',
@@ -294,7 +295,7 @@ export const TrfPkgSummaryView = (props: TrfPkgSummaryViewProps) => {
       setEntityTables([])
     }
     return () => {
-      console.log(`TrfPkgSummaryView.useEffect[selected] unmount`)
+      // console.log(`TrfPkgSummaryView.useEffect[selected] unmount`)
     }
   }, [selected, trf.db, trf.dbInfo])
 

@@ -6,7 +6,6 @@ import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { Chart as ChartJS, ArcElement, BarController, Title, Tooltip, Legend, registerables } from 'chart.js'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
 import { fromEvent } from 'file-selector'
-import { Buffer } from 'node:buffer'
 
 ChartJS.register(ArcElement, BarController, Tooltip, Legend, Title, ChartDataLabels, ...registerables) // todo optimize/get rid of registerables
 
@@ -21,7 +20,7 @@ import MoreIcon from '@rsuite/icons/More'
 
 import './App.css'
 import Dropzone, { FileRejection } from 'react-dropzone'
-import AdmZip from 'adm-zip'
+import * as zipjs from '@zip.js/zip.js'
 import {
   AppBar,
   Box,
@@ -106,31 +105,29 @@ function App() {
             })
           : []
       for (const file of zipFiles) {
-        console.log(` dropped zip file:${file.name} ${file.type} size=${file.size}`, file)
-        const fileBuf = await file.arrayBuffer()
-        console.log(` dropped zip file:${file.name} size=${file.size} got fileBuf ${fileBuf.byteLength}`)
-        const zip = new AdmZip(Buffer.from(fileBuf), { noSort: true })
-        console.log(` dropped zip file:${file.name} has ${zip.getEntryCount()} entries.`)
-        const trfFilesFromZip = zip.getEntries().filter((e) => {
-          const lowName = e.entryName.toLowerCase()
-          return lowName.endsWith('.trf')
-        })
-        console.log(` dropped zip file:${file.name} has ${trfFilesFromZip.length} trf entries`)
-        // unzip those:
-        const trfFilesFromZipAsFiles: FileData[] = trfFilesFromZip.map((f) => {
-          const bits = f.getData()
-          return {
-            file: new File([bits], f.entryName, { type: 'text/xml', lastModified: f.header.time.valueOf() }),
-            deferredZipFile: new DeferredZipFile(file, zip),
-          } // todo text/xml
-        })
-        console.log(` dropped zip file:${file.name} extracted ${trfFilesFromZipAsFiles.length} trf entries`, trfFilesFromZipAsFiles)
-        setFiles((d) => {
-          const nonDuplFiles = trfFilesFromZipAsFiles.filter((f) => !includesFile(d, f))
-          return d.concat(nonDuplFiles)
-        })
-        didSetFiles = true
-      }
+        try {
+          console.log(` dropped zip file:${file.name} ${file.type} size=${file.size}`, file)
+          const zipReader = new zipjs.ZipReader(new zipjs.BlobReader(file))
+          const zipFileEntries = await zipReader.getEntries({ filenameEncoding: 'utf-8' })
+          console.log(` dropped zip file:${file.name} has ${zipFileEntries.length} zipjs entries.`)
+          const trfFilesFromZipJs = zipFileEntries.filter((e) => {
+            const lowName = e.filename.toLowerCase()
+            return lowName.endsWith('.trf')
+          })
+          // unzip those:
+          for (const fi of trfFilesFromZipJs) {
+            if (fi.getData) {
+              const bits = await fi.getData(new zipjs.BlobWriter())
+              const trfFile = new File([bits], fi.filename, { type: 'text/xml', lastModified: fi.lastModDate.valueOf() })
+              posTrfFiles.push({ file: trfFile, deferredZipFile: new DeferredZipFile(file, zipFileEntries) })
+            }
+          }
+          console.log(` dropped zip file:${file.name} extracted ${trfFilesFromZipJs.length} trf entries`)
+        } catch (err) {
+          console.warn(`onDrop processing file '${file.name}' got err=${err}`)
+        }
+      } // end for zipfiles
+
       if (posTrfFiles.length > 0) {
         setFiles((d) => {
           const nonDuplFiles = posTrfFiles.filter((f) => !includesFile(d, f))
@@ -412,8 +409,9 @@ function App() {
                       ))}
                     </ResponsiveNav>
                   </div>
-                  {testReports.map((report) => (
+                  {testReports.map((report, idx) => (
                     <div
+                      key={`report_${idx}_${report.fileData.file.name}`}
                       style={{
                         flexDirection: 'column',
                         flex: report.fileData.file.name === activeTrf ? '1 1 auto' : '0 0 0px',

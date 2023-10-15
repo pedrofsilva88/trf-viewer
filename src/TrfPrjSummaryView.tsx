@@ -68,10 +68,10 @@ export const TrfPrjSummaryView = (props: TrfPrjSummaryViewProps) => {
           returnValue: 'resultRows',
           rowMode: 'object',
         })
-        console.log(`TrfPrjSummaryView.useEffect[selected] got ${resultRows.length} entity rows for ${selected.id}`, resultRows)
+        // console.log(`TrfPrjSummaryView.useEffect[selected] got ${resultRows.length} entity rows for ${selected.id}`, resultRows)
         for (const row of resultRows) {
           if (row.type === 'tableentity_cell' && row.name === 'Statistic') {
-            console.log(`TrfPrjSummaryView.useEffect[selected] got statistics row id:${row.id}`, row)
+            // console.log(`TrfPrjSummaryView.useEffect[selected] got statistics row id:${row.id}`, row)
             const statsTable = getTableEntityCellTable(trf.db, row.id, row.name)
             for (const col of statsTable.columns) {
               if (col.label === 'Percentage') {
@@ -91,7 +91,7 @@ export const TrfPrjSummaryView = (props: TrfPrjSummaryViewProps) => {
     }
     console.timeEnd(`TrfPrjSummaryView.useEffect[selected]...`)
     return () => {
-      console.log(`TrfPrjSummaryView.useEffect[selected] unmount`)
+      // console.log(`TrfPrjSummaryView.useEffect[selected] unmount`)
     }
   }, [selected, trf.db, trf.dbInfo])
 

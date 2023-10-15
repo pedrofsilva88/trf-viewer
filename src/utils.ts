@@ -1,6 +1,5 @@
 import { DB } from '@sqlite.org/sqlite-wasm'
-import AdmZip from 'adm-zip'
-import { Buffer } from 'node:buffer'
+import * as zipjs from '@zip.js/zip.js'
 
 interface TableColumn {
   key: string
@@ -105,12 +104,9 @@ export class DeferredZipFile {
 
   constructor(
     private rawZipFile: File,
-    openedZip: AdmZip,
+    zipEntries: zipjs.Entry[],
   ) {
-    this.entryNames = openedZip
-      .getEntries()
-      .filter((e) => !e.isDirectory)
-      .map((e) => e.entryName)
+    this.entryNames = zipEntries.filter((e) => !e.directory).map((e) => e.filename)
   }
 
   /**
@@ -131,15 +127,18 @@ export class DeferredZipFile {
    * @param entries - array with entryNames to extract
    * @returns
    */
-  public async extract(entries: string[]) {
+  public async extract(entries: string[]): Promise<File[]> {
     // open the zip file now:
-    const zipFileBuf = await this.rawZipFile.arrayBuffer()
-    const zip = new AdmZip(Buffer.from(zipFileBuf), { noSort: true })
-    const filesFromZip = zip.getEntries().filter((e) => entries.includes(e.entryName))
-    const unzippedFromZipAsFiles = filesFromZip.map((f) => {
-      const bits = f.getData()
-      return new File([bits], f.entryName, { type: 'text/xml', lastModified: f.header.time.valueOf() }) // todo text/xml
-    })
+    const zipReader = new zipjs.ZipReader(new zipjs.BlobReader(this.rawZipFile))
+    const zipFileEntries = await zipReader.getEntries({ filenameEncoding: 'utf-8' })
+    const filesFromZip = zipFileEntries.filter((e) => !e.directory && entries.includes(e.filename))
+    const unzippedFromZipAsFiles: File[] = []
+    for (const fi of filesFromZip) {
+      const bits = await fi.getData?.(new zipjs.BlobWriter())
+      if (bits) {
+        unzippedFromZipAsFiles.push(new File([bits], fi.filename, { type: 'text/xml', lastModified: fi.lastModDate.valueOf() }))
+      }
+    }
     return unzippedFromZipAsFiles
   }
 }

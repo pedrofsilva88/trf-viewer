@@ -36,7 +36,7 @@
     "dexie": "^3.2.4",
     "dexie-react-hooks": "^1.1.6",
     "fast-xml-parser": "4.3.2",
-    "file-selector": "github:mbehr1/file-selector",
+    "file-selector": "github:pedrofsilva88/file-selector",
     "material-ui-confirm": "^3.0.9",
     "notistack": "^3.0.1",
     "react": "^18.2.0",

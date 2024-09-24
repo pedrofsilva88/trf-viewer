@@ -428,8 +428,8 @@ function App() {
               <div className='gitSha' style={{ flex: '0 1 auto' }}>
                 <div style={{ marginRight: '100px' }}>
                   {'build from '}
-                  <a href='https://github.com/mbehr1/trf-viewer' target='_blank'>
-                    github/mbehr1/trf-viewer
+                  <a href='https://github.com/pedrofsilva88/trf-viewer' target='_blank'>
+                    github/pedrofsilva88/trf-viewer
                   </a>
                   {` commit #${__COMMIT_HASH__}`}
                 </div>
